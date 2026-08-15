@@ -1,4 +1,4 @@
-## commerce-payment-system
+## commerce-payment-systems
 커머스 결제 시스템 프로젝트
 
 ### 주요 기술 스택
