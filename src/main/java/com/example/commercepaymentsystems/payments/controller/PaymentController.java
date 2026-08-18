@@ -1,16 +1,16 @@
 package com.example.commercepaymentsystems.payments.controller;
 
+import com.example.commercepaymentsystems.payments.dto.PaymentConfirmRequest;
+import com.example.commercepaymentsystems.payments.dto.PaymentConfirmResponse;
 import com.example.commercepaymentsystems.payments.dto.PaymentResponse;
 import com.example.commercepaymentsystems.payments.facade.PaymentFacade;
 import com.example.commercepaymentsystems.payments.service.PaymentCommandService;
 import com.example.commercepaymentsystems.payments.service.PaymentService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -25,5 +25,13 @@ public class PaymentController {
             @AuthenticationPrincipal Long customerId,
             @PathVariable Long id) {
         return ResponseEntity.ok(paymentService.getPayment(customerId, id));
+    }
+
+    @PostMapping("/confirm")
+    public ResponseEntity<PaymentConfirmResponse> confirmPayment(
+            @AuthenticationPrincipal Long customerId,
+            @Valid @RequestBody PaymentConfirmRequest confirmRequest
+            ) {
+        return ResponseEntity.ok(paymentFacade.paymentConfirm(customerId, confirmRequest));
     }
 }
