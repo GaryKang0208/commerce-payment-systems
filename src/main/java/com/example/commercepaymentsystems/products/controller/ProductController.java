@@ -1,5 +1,6 @@
 package com.example.commercepaymentsystems.products.controller;
 
+import com.example.commercepaymentsystems.products.dto.ProductPageResponse;
 import com.example.commercepaymentsystems.products.dto.ProductResponse;
 import com.example.commercepaymentsystems.products.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -15,8 +16,8 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public ResponseEntity<List<ProductResponse>> findAll(@RequestParam int page,
-                                                         @RequestParam int size){
+    public ResponseEntity<ProductPageResponse> findAll(@RequestParam int page,
+                                                       @RequestParam int size){
         return ResponseEntity.ok(productService.findAll(page,size));
     }
     @GetMapping("/{id}")
