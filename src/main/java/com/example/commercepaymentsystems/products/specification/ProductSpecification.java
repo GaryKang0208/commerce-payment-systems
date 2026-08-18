@@ -30,6 +30,18 @@ public class ProductSpecification {
         };
     }
 
+    public static Specification<Product> maximumValue(Integer maximumPrice) {
+        return (root, query, criteriaBuilder) -> {
+            if (maximumPrice == null) {
+                return null;
+            }
+            return criteriaBuilder.lessThanOrEqualTo(
+                    root.get("price"),
+                    maximumPrice
+            );
+        };
+    }
+
 
 }
 
