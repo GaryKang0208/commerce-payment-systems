@@ -19,8 +19,9 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<ProductPageResponse> findAll(@RequestParam int page,
                                                        @RequestParam int size,
-                                                       @RequestParam(required = false) ProductCategory category){
-        return ResponseEntity.ok(productService.findAll(page,size,category));
+                                                       @RequestParam(required = false) ProductCategory category,
+                                                       @RequestParam(required = false) Integer minimumPrice){
+        return ResponseEntity.ok(productService.findAll(page,size,category,minimumPrice));
     }
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> findOne(@PathVariable Long id){
