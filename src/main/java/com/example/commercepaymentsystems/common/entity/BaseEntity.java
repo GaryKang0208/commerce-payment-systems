@@ -1,4 +1,4 @@
-package com.example.commercepaymentsystems.common;
+package com.example.commercepaymentsystems.common.entity;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
