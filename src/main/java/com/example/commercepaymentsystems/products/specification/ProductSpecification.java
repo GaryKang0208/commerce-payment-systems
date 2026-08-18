@@ -17,5 +17,19 @@ public class ProductSpecification {
             );
         };
     }
+
+    public static Specification<Product> minimumValue(Integer minimumPrice) {
+        return (root, query, criteriaBuilder) -> {
+            if (minimumPrice == null) {
+                return null;
+            }
+            return criteriaBuilder.greaterThanOrEqualTo(
+                    root.get("price"),
+                    minimumPrice
+            );
+        };
+    }
+
+
 }
 
