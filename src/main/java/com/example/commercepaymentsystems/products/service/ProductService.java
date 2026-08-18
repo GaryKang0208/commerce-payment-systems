@@ -4,6 +4,8 @@ import com.example.commercepaymentsystems.products.dto.ProductResponse;
 import com.example.commercepaymentsystems.products.entity.Product;
 import com.example.commercepaymentsystems.products.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,8 +15,9 @@ import java.util.List;
 public class ProductService {
     public final ProductRepository productRepository;
 
-    public List<ProductResponse> findAll() {
-        return productRepository.findAll().stream()
+    public List<ProductResponse> findAll(int page,int size) {
+        Pageable pageable= PageRequest.of(page,size);
+        return productRepository.findAll(pageable).stream()
                 .map(this::toResponse)
                 .toList();
 
@@ -23,7 +26,7 @@ public class ProductService {
 
     public ProductResponse findOne(Long id) {
         Product product=productRepository.findById(id)
-                .orElseThrow(()->new ArithmeticException(
+                .orElseThrow(()->new IllegalArgumentException(
                         "저장되지 않은 상품 입니다."
                 ));
         return toResponse(product);

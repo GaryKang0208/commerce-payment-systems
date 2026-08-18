@@ -15,8 +15,9 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public ResponseEntity<List<ProductResponse>> findAll(){
-        return ResponseEntity.ok(productService.findAll());
+    public ResponseEntity<List<ProductResponse>> findAll(@RequestParam int page,
+                                                         @RequestParam int size){
+        return ResponseEntity.ok(productService.findAll(page,size));
     }
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> findOne(@PathVariable Long id){
