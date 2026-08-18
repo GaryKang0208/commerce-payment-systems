@@ -3,12 +3,15 @@ package com.example.commercepaymentsystems.products.service;
 import com.example.commercepaymentsystems.products.dto.ProductPageResponse;
 import com.example.commercepaymentsystems.products.dto.ProductResponse;
 import com.example.commercepaymentsystems.products.entity.Product;
+import com.example.commercepaymentsystems.products.enums.ProductCategory;
 import com.example.commercepaymentsystems.products.repository.ProductRepository;
+import com.example.commercepaymentsystems.products.specification.ProductSpecification;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -18,9 +21,10 @@ import java.util.List;
 public class ProductService {
     public final ProductRepository productRepository;
 
-    public ProductPageResponse findAll(int page, int size) {
+    public ProductPageResponse findAll(int page, int size, ProductCategory category) {
         Pageable pageable= PageRequest.of(page,size, Sort.by(Sort.Direction.DESC,"createdAt"));
-        Page<Product> products=productRepository.findAll(pageable);
+        Specification<Product> spec= ProductSpecification.hasCategory(category);
+        Page<Product> products=productRepository.findAll(spec,pageable);
         List<ProductResponse> productResponses= products.stream()
                 .map(this::toResponse)
                 .toList();

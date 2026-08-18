@@ -2,6 +2,7 @@ package com.example.commercepaymentsystems.products.controller;
 
 import com.example.commercepaymentsystems.products.dto.ProductPageResponse;
 import com.example.commercepaymentsystems.products.dto.ProductResponse;
+import com.example.commercepaymentsystems.products.enums.ProductCategory;
 import com.example.commercepaymentsystems.products.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,8 +18,9 @@ public class ProductController {
 
     @GetMapping
     public ResponseEntity<ProductPageResponse> findAll(@RequestParam int page,
-                                                       @RequestParam int size){
-        return ResponseEntity.ok(productService.findAll(page,size));
+                                                       @RequestParam int size,
+                                                       @RequestParam(required = false) ProductCategory category){
+        return ResponseEntity.ok(productService.findAll(page,size,category));
     }
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> findOne(@PathVariable Long id){
