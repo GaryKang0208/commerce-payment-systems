@@ -20,6 +20,19 @@ public class PaymentService {
         return toResponse(payment);
     }
 
+    public Payment findByOrderIdWithOrder(Long orderId) {
+        return paymentRepository.findByOrderIdWithOrder(orderId)
+                .orElseThrow(() -> new RuntimeException("Payment not found"));
+    }
+
+    public void failPayment(Payment payment) {
+        payment.markAsFailed();
+    }
+
+    public void confirmPayment(Payment payment) {
+        payment.markAsPaid();
+    }
+
     private PaymentResponse toResponse(Payment payment) {
         return new PaymentResponse(
                 payment.getFinalPrice(),
