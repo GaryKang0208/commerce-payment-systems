@@ -21,9 +21,9 @@ import java.util.List;
 public class ProductService {
     public final ProductRepository productRepository;
 
-    public ProductPageResponse findAll(int page, int size, ProductCategory category, Integer minimumPrice) {
+    public ProductPageResponse findAll(int page, int size, ProductCategory category, Integer minimumPrice, Integer maximumPrice) {
         Pageable pageable= PageRequest.of(page,size, Sort.by(Sort.Direction.DESC,"createdAt"));
-        Specification<Product> spec= ProductSpecification.hasCategory(category).and(ProductSpecification.minimumValue(minimumPrice));
+        Specification<Product> spec= ProductSpecification.hasCategory(category).and(ProductSpecification.minimumValue(minimumPrice).and(ProductSpecification.maximumValue(maximumPrice)));
         Page<Product> products=productRepository.findAll(spec,pageable);
         List<ProductResponse> productResponses= products.stream()
                 .map(this::toResponse)
