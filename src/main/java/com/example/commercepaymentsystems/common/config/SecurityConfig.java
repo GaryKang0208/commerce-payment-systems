@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.common.config;
-
 import com.example.commercepaymentsystems.common.jwt.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -22,7 +21,6 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(
             HttpSecurity http
     ) throws Exception {
-
         http.csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(

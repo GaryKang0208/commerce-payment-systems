@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.customers.dto.customers;
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 

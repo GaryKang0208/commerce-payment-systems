@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.common;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.MappedSuperclass;
