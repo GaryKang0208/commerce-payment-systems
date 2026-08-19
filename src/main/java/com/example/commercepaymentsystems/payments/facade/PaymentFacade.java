@@ -27,7 +27,7 @@ public class PaymentFacade {
         }
 
         //주문자와 사용자 일치 확인
-        if (order.getCustomer().getId().equals(userId)) {
+        if (!order.getCustomer().getId().equals(userId)) {
             throw new RuntimeException("주문자와 사용자가 일치하지 않음");
         }
 
