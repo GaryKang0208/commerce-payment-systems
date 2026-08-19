@@ -6,7 +6,6 @@ import com.example.commercepaymentsystems.customers.dto.customers.UpdateProfileR
 import com.example.commercepaymentsystems.customers.service.customers.CustomersService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Profile;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
