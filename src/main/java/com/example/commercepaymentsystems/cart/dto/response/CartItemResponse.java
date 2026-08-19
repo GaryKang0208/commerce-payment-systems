@@ -1,10 +1,10 @@
 package com.example.commercepaymentsystems.cart.dto.response;
 
 public record CartItemResponse(
-        Long id,
+        Long cartItemId,
         Long productId,
         String productName,
         int price,
         int quantity,
-        int stock
+        Long itemTotalPrice
 ) {}
