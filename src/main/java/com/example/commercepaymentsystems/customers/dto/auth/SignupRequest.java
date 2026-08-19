@@ -1,10 +1,7 @@
 package com.example.commercepaymentsystems.customers.dto.auth;
-
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import lombok.Getter;
-
 
 public record SignupRequest(
         @Email

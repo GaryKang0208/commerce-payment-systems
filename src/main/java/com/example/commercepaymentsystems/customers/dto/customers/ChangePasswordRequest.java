@@ -2,7 +2,6 @@ package com.example.commercepaymentsystems.customers.dto.customers;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
-import jakarta.validation.constraints.Size;
 
 public record ChangePasswordRequest(
         @NotBlank(message = "현재 비밀번호는 필수입니다.")

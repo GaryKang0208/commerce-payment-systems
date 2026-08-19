@@ -7,7 +7,6 @@ import com.example.commercepaymentsystems.customers.dto.customers.ProfileRespons
 import com.example.commercepaymentsystems.customers.dto.customers.UpdateProfileRequest;
 import com.example.commercepaymentsystems.customers.entity.Customers;
 import com.example.commercepaymentsystems.customers.repository.CustomersRepository;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
