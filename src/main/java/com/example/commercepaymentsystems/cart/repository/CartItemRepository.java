@@ -9,14 +9,16 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CartItemRepository extends JpaRepository<CartItemEntity, Long>{
-    List<CartItemEntity> findByMemberId(@Param("memberId") Long memberId);
+    List<CartItemEntity> findByCartId(@Param("cartId") Long cartId);
 
-    Optional<CartItemEntity> findByMemberIdAndProductId(Long memberId, Long productId);
+    Optional<CartItemEntity> findByCartIdAndProductId(Long cartId, Long productId);
 
-    int deleteByIdAndMemberId(@Param("id") Long id,
-                               @Param("memberId")
-                               Long memberId);
+    int deleteByIdAndCartId(@Param("id") Long id,
+                             @Param("cartId")
+                             Long cartId);
 
-    Optional<CartItemEntity> findByIdAndMemberId(Long id, Long MemberId);
+    Optional<CartItemEntity> findByIdAndCartId(Long id, Long cartId);
+
+    void deleteByCartId(@Param("cartId") Long cartId);
 
 }

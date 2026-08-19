@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 
 @Entity
 @Table(name = "cart_items", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"member_id", "product_id"})
+        @UniqueConstraint(columnNames = {"cart_id", "product_id"})
 })
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -17,8 +17,9 @@ public class CartItemEntity extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "member_id", nullable = false)
-    private Long memberId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "cart_id", nullable = false)
+    private CartEntity cart;
 
     @Column(name = "product_id", nullable = false)
     private Long productId;
@@ -26,14 +27,17 @@ public class CartItemEntity extends BaseEntity {
     @Column(nullable = false)
     private int quantity;
 
-    public CartItemEntity(Long memberId, Long productId, int quantity){
-        this.memberId = memberId;
+    public CartItemEntity(CartEntity cart, Long productId, int quantity){
+        this.cart = cart;
         this.productId = productId;
         if (quantity < 1){
             throw new IllegalArgumentException("수량은 1 이상이어야 합니다.");
         }
         this.quantity = quantity;
+    }
 
+    public Long getCartId(){
+        return cart.getId();
     }
 
     public void addQuantity(int quantity){
