@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: commerce-payment-systems
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/commerce
+    username: root
+    password: 12345678
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.MySQLDialect
+
+jwt:
+  secret: your-very-long-secret-key-for-commerce-payment-system-2026
+  access-token-validity-ms: 3600000
