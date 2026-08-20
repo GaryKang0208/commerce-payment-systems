@@ -2,6 +2,7 @@ package com.example.commercepaymentsystems.products.entity;
 
 import com.example.commercepaymentsystems.common.BaseEntity;
 import com.example.commercepaymentsystems.products.enums.ProductCategory;
+import com.example.commercepaymentsystems.products.enums.ProductStatus;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -27,6 +28,9 @@ public class Product extends BaseEntity {
     private String description;
     @Enumerated(EnumType.STRING)
     private ProductCategory category;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private ProductStatus salesStatus;
 
 
 }
