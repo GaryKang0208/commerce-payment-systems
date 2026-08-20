@@ -50,7 +50,7 @@ public class Payment extends BaseEntity {
 
     private void changeStatus(PaymentStatus nextStatus) {
         if (!this.status.canTransitTo(nextStatus)) {
-            throw new IllegalArgumentException("유효하지 않은 상태 변경");
+            throw new RuntimeException("유효하지 않은 상태 변경");
         }
 
         this.status = nextStatus;

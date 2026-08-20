@@ -25,10 +25,12 @@ public class PaymentService {
                 .orElseThrow(() -> new RuntimeException("Payment not found"));
     }
 
+    @Transactional
     public void failPayment(Payment payment) {
         payment.markAsFailed();
     }
 
+    @Transactional
     public void confirmPayment(Payment payment) {
         payment.markAsPaid();
     }
