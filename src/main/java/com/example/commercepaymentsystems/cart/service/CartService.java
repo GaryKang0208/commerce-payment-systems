@@ -29,6 +29,15 @@ public class CartService {
     private final CartItemRepository cartItemRepository;
     private final ProductRepository productRepository;
 
+    public List<CartItem> findCartEntities(Long customerId) {
+        return cartItemRepository.findByCart_CustomerId(customerId);
+    }
+
+    public List<CartItem> findCartEntitiesByIds(List<Long> cartItemIds, Long customerId) {
+        return cartItemRepository.findByIdInAndCart_CustomerId(cartItemIds, customerId);
+    }
+
+
     @Transactional
     public AddCartResponse addItem(Long customerId, Long productId, int quantity){
         Cart cart = getOrCreateCart(customerId);
