@@ -29,7 +29,7 @@ public class Product extends BaseEntity {
     @Enumerated(EnumType.STRING)
     private ProductCategory category;
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
+    @Column(name = "sales_status",nullable = false)
     private ProductStatus salesStatus;
 
 

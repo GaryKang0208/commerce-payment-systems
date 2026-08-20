@@ -23,7 +23,7 @@ import java.util.List;
 public class ProductService {
     public final ProductRepository productRepository;
 
-    public ProductPageResponse findAll(int page, int size, ProductCategory category, Long minimumPrice, Long maximumPrice) {
+    public ProductPageResponse findAll(int page, int size, ProductCategory category, Long minimumPrice, Long maximumPrice,String sort) {
         if (page <0){
             throw new BusinessException(ErrorCode.INVALID_PAGE);
         }//페이지
@@ -39,7 +39,13 @@ public class ProductService {
         if (maximumPrice != null && minimumPrice != null && minimumPrice>maximumPrice){
             throw new BusinessException(ErrorCode.INVALID_PRICE_RANGE);
         }
-        Pageable pageable= PageRequest.of(page,size, Sort.by(Sort.Direction.DESC,"createdAt"));
+        Sort.Direction direction;
+        if (sort.equals("asc")){
+            direction = Sort.Direction.ASC;
+        }else {
+            direction = Sort.Direction.DESC;
+        }
+        Pageable pageable= PageRequest.of(page,size, Sort.by(direction,"price"));
         Specification<Product> spec= ProductSpecification.hasCategory(category).and(ProductSpecification.minimumValue(minimumPrice).and(ProductSpecification.maximumValue(maximumPrice)));
         Page<Product> products=productRepository.findAll(spec,pageable);
         List<ProductResponse> productResponses= products.stream()
