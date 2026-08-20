@@ -36,10 +36,16 @@ public class CartService {
                 .orElseThrow(()-> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
         Optional<CartItem> existing = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId);
         CartItem item;
-        if(existing.isPresent()){
+        if(existing.isPresent()) {
             item = existing.get();
-            item.addQuantity(quantity);
+            if (existing.get().getQuantity() + quantity > product.getStock()) {
+                throw new BusinessException(ErrorCode.STOCK_EXCEEDED);
+            }
+             item.addQuantity(quantity);
         }else{
+            if(quantity > product.getStock()){
+                throw new BusinessException(ErrorCode.STOCK_EXCEEDED);
+            }
             item = cartItemRepository.save(new CartItem(cart, productId, quantity));
         }
         return new AddCartResponse(
@@ -74,6 +80,12 @@ public class CartService {
                 .orElseThrow(() -> new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND));
         CartItem item = cartItemRepository.findByIdAndCartId(itemId, cart.getId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND));
+
+        Product product  = productRepository.findById(item.getProductId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+                if(quantity > product.getStock()){
+                    throw new BusinessException(ErrorCode.STOCK_EXCEEDED);
+        }
         item.changeQuantity(quantity);
     }
 

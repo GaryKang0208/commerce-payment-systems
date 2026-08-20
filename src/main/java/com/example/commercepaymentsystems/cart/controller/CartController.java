@@ -36,7 +36,7 @@ public class CartController {
     public ResponseEntity<Void> updateQuantity(@AuthenticationPrincipal Long customerId,
                                                @PathVariable Long id,
                                                @Valid @RequestBody UpdateCartRequest request){
-        cartService.updateQuantity(customerId,id, request.quantity());
+        cartService.updateQuantity(customerId, id, request.quantity());
         return ResponseEntity.ok().build();
     }
     @DeleteMapping("/{id}")
