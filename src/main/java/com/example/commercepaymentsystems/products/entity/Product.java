@@ -42,4 +42,7 @@ public class Product extends BaseEntity {
         this.stock -= quantity;
     } //주문쪽에서 요청하신 코드
 
+    public void restoreStock(int quantity) {
+        this.stock += quantity;
+    }// 결제 파트 요청코드
 }
