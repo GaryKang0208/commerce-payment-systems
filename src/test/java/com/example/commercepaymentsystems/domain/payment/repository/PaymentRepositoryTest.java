@@ -1,5 +1,6 @@
 package com.example.commercepaymentsystems.domain.payment.repository;
 
+import com.example.commercepaymentsystems.common.config.JpaAuditingConfig;
 import com.example.commercepaymentsystems.customers.CustomerRepository;
 import com.example.commercepaymentsystems.customers.entity.Customer;
 import com.example.commercepaymentsystems.orders.entity.Order;
@@ -20,7 +21,7 @@ import org.springframework.test.context.ActiveProfiles;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @DataJpaTest
-@Import(MySQLSupport.class)
+@Import({MySQLSupport.class, JpaAuditingConfig.class})
 @ActiveProfiles("test")
 public class PaymentRepositoryTest {
     @Autowired
@@ -31,6 +32,7 @@ public class PaymentRepositoryTest {
     private CustomerRepository customerRepository;
 
     private Order order;
+    private Long customerId;
 
     @BeforeEach
     void setup() {
@@ -41,7 +43,7 @@ public class PaymentRepositoryTest {
         );
         order = new Order(customer);
 
-        customerRepository.save(customer);
+        customerId = customerRepository.save(customer).getId();
         orderRepository.save(order);
     }
 
@@ -62,5 +64,24 @@ public class PaymentRepositoryTest {
 
         //then
         assertEquals("name", found.getOrder().getCustomer().getName());
+    }
+
+    @Test
+    @DisplayName("findByIdAndCustomerId 메서드 테스트")
+    void findByIdAndCustomerId_test() {
+        //given
+        Payment payment = new Payment(
+                10000L,
+                PaymentStatus.IN_PROGRESS,
+                order
+        );
+        paymentRepository.save(payment);
+
+        //when
+        Payment found = paymentRepository.findByIdAndCustomerId(1L, customerId)
+                .orElseThrow(() -> new RuntimeException("Payment not found") );
+
+        //then
+        assertEquals(10000L, found.getFinalPrice());
     }
 }
