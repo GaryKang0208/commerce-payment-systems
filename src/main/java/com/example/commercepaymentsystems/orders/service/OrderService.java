@@ -2,6 +2,8 @@ package com.example.commercepaymentsystems.orders.service;
 
 import com.example.commercepaymentsystems.cart.entity.CartItemEntity;
 import com.example.commercepaymentsystems.cart.service.CartService;
+import com.example.commercepaymentsystems.common.exception.BusinessException;
+import com.example.commercepaymentsystems.common.exception.ErrorCode;
 import com.example.commercepaymentsystems.customers.entity.Customers;
 import com.example.commercepaymentsystems.customers.repository.CustomersRepository;
 import com.example.commercepaymentsystems.orders.dto.request.CreateOrderRequest;
@@ -50,9 +52,7 @@ public class OrderService {
 
         // 2. 장바구니가 비어 있으면 미리보기 불가
         if (cartItems.isEmpty()) {
-            throw new IllegalArgumentException(
-                    "장바구니가 비어 있습니다."
-            );
+            throw new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND);
         }
 
         // 3. CartItem → OrderPreviewItemResponse 변환
@@ -117,9 +117,7 @@ public class OrderService {
         // 1. 주문한 고객 조회
         Customers customer = customersRepository.findById(customerId)
                 .orElseThrow(
-                        () -> new IllegalArgumentException(
-                                "고객 정보를 찾을 수 없습니다."
-                        )
+                        () -> new BusinessException(ErrorCode.CUSTOMER_NOT_FOUND)
                 );
 
         List<Long> cartItemIds = (request == null) ? List.of() : request.cartItemIds();
@@ -216,9 +214,7 @@ public class OrderService {
                         orderId,
                         customerId
                 )
-                .orElseThrow(
-                        () -> new IllegalArgumentException("주문 정보를 찾을 수 없습니다.")
-                );
+                .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
 
         // 해당 주문의 주문상품 조회
         List<OrderDetailResponse.OrderItemResponse> orderItems =
@@ -287,13 +283,34 @@ public class OrderService {
                         : cartService.findCartEntitiesByIds(customerId, cartItemIds);
 
         if (cartItems.isEmpty()) {
-            throw new IllegalArgumentException("주문할 장바구니 상품이 없습니다.");
+            throw new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND);
         }
 
         if (!cartItemIds.isEmpty() && cartItems.size() != cartItemIds.size()) {
-            throw new IllegalArgumentException("유효하지 않은 장바구니 상품이 포함되어 있습니다.");
+            throw new BusinessException(ErrorCode.CART_ITEM_FORBIDDEN);
         }
 
         return cartItems;
+    }
+
+    // payment에서 사용
+    @Transactional
+    public void cancelOrder(Order order) {
+        order.cancel();
+    }
+
+    // 사용자가 주문 취소 API 호출할 때 사용
+    @Transactional
+    public void cancelOrder(Long customerId, Long orderId) {
+        Order order = orderRepository.findById(orderId)
+                .orElseThrow(
+                        () -> new BusinessException(ErrorCode.ORDER_NOT_FOUND)
+                );
+
+        if (!order.getCustomer().getId().equals(customerId)) {
+            throw new BusinessException(ErrorCode.ORDER_ACCESS_DENIED);
+        }
+
+        order.cancel();
     }
 }
