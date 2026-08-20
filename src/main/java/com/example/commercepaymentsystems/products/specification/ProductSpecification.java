@@ -18,7 +18,7 @@ public class ProductSpecification {
         };
     }
 
-    public static Specification<Product> minimumValue(Integer minimumPrice) {
+    public static Specification<Product> minimumValue(Long minimumPrice) {
         return (root, query, criteriaBuilder) -> {
             if (minimumPrice == null) {
                 return null;
@@ -30,7 +30,7 @@ public class ProductSpecification {
         };
     }
 
-    public static Specification<Product> maximumValue(Integer maximumPrice) {
+    public static Specification<Product> maximumValue(Long maximumPrice) {
         return (root, query, criteriaBuilder) -> {
             if (maximumPrice == null) {
                 return null;

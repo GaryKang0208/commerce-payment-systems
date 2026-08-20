@@ -1,5 +1,6 @@
 package com.example.commercepaymentsystems.products.entity;
 
+import com.example.commercepaymentsystems.common.BaseEntity;
 import com.example.commercepaymentsystems.products.enums.ProductCategory;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -16,13 +17,13 @@ public class Product extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(nullable = false,length = 20)
+    @Column(nullable = false,length = 200)
     private String name;
     @Column(nullable = false)
-    private Integer price;
+    private Long price;
     @Column(nullable = false)
     private Integer stock;
-    @Column(length = 500)
+    @Column(columnDefinition = "TEXT")
     private String description;
     @Enumerated(EnumType.STRING)
     private ProductCategory category;
