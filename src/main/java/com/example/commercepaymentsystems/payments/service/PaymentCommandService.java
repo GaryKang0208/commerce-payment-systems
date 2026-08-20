@@ -1,10 +1,10 @@
 package com.example.commercepaymentsystems.payments.service;
 
-import com.example.commercepaymentsystems.cart.entity.CartItemEntity;
+import com.example.commercepaymentsystems.cart.entity.CartItem;
 import com.example.commercepaymentsystems.cart.service.CartService;
-import com.example.commercepaymentsystems.order.entity.Order;
-import com.example.commercepaymentsystems.order.entity.OrderItem;
-import com.example.commercepaymentsystems.order.service.OrderService;
+import com.example.commercepaymentsystems.orders.entity.Order;
+import com.example.commercepaymentsystems.orders.entity.OrderItem;
+import com.example.commercepaymentsystems.orders.service.OrderService;
 import com.example.commercepaymentsystems.payments.dto.PaymentConfirmResponse;
 import com.example.commercepaymentsystems.payments.entity.Payment;
 import com.example.commercepaymentsystems.products.entity.Product;
@@ -57,7 +57,7 @@ public class PaymentCommandService {
         List<OrderItem> items = orderService.getOrderItems(order.getId());
 
         for (OrderItem item : items) {
-            Product product = productService.findProductById(item.getProduct().getId());
+            Product product = productService.findEntityById(item.getProduct().getId());
             product.restoreStock(item.getQuantity());
         }
     }

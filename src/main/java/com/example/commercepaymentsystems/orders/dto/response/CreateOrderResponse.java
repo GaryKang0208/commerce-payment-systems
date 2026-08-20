@@ -1,4 +1,4 @@
-package com.example.commercepaymentsystems.order.dto.response;
+package com.example.commercepaymentsystems.orders.dto.response;
 
 // 주문 생성
 public record CreateOrderResponse(

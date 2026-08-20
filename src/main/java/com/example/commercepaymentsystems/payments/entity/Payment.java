@@ -1,7 +1,7 @@
 package com.example.commercepaymentsystems.payments.entity;
 
 import com.example.commercepaymentsystems.common.entity.BaseEntity;
-import com.example.commercepaymentsystems.order.entity.Order;
+import com.example.commercepaymentsystems.orders.entity.Order;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;

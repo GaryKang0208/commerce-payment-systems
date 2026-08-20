@@ -17,8 +17,8 @@ public class ProductController {
     private final ProductService productService;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<ProductPageResponse>> findAll(@RequestParam int page,
-                                                                   @RequestParam int size,
+    public ResponseEntity<ApiResponse<ProductPageResponse>> findAll(@RequestParam(defaultValue = "0") int page,
+                                                                   @RequestParam(defaultValue = "10") int size,
                                                                    @RequestParam(required = false) ProductCategory category,
                                                                    @RequestParam(required = false) Long minimumPrice,
                                                                    @RequestParam(required = false) Long maximumPrice,

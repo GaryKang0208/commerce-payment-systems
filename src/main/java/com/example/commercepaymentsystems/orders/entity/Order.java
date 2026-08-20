@@ -9,6 +9,8 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.util.prefs.Preferences;
+
 @Entity
 @Getter
 @Table(name = "orders")
@@ -55,4 +57,9 @@ public class Order extends BaseEntity {
 
         this.orderStatus = newStatus;
     }
+
+    public OrderStatus getStatus() {
+         return orderStatus;
+    }
+
 }

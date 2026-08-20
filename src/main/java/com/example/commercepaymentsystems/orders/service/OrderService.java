@@ -1,6 +1,6 @@
 package com.example.commercepaymentsystems.orders.service;
 
-import com.example.commercepaymentsystems.cart.entity.CartItemEntity;
+import com.example.commercepaymentsystems.cart.entity.CartItem;
 import com.example.commercepaymentsystems.cart.service.CartService;
 import com.example.commercepaymentsystems.common.exception.BusinessException;
 import com.example.commercepaymentsystems.common.exception.ErrorCode;
@@ -47,7 +47,7 @@ public class OrderService {
     public OrderPreviewResponse getOrderPreview(Long customerId) {
 
         // 1. 고객의 장바구니 전체 조회
-        List<CartItemEntity> cartItems =
+        List<CartItem> cartItems =
                 cartService.findCartEntities(customerId);
 
         // 2. 장바구니가 비어 있으면 미리보기 불가
@@ -124,13 +124,13 @@ public class OrderService {
 
         // 2. 주문할 장바구니 상품 조회
         // cartItemIds가 비어 있다면 해당 고객의 전체 장바구니를 주문한다.
-        List<CartItemEntity> cartItems = getValidateCartItems(customerId, cartItemIds);
+        List<CartItem> cartItems = getValidateCartItems(customerId, cartItemIds);
 
         // 3. 재고 차감 + 총 주문금액 계산
         // 재고 검증이 모두 끝났기 때문에 이제 실제 재고를 차감한다.
         long totalPrice = 0L;
 
-        for (CartItemEntity cartItem : cartItems) {
+        for (CartItem cartItem : cartItems) {
 
             Product product = productService.findEntityById(cartItem.getProductId());
             Integer quantity = cartItem.getQuantity();
@@ -234,6 +234,10 @@ public class OrderService {
         );
     }
 
+    public List<OrderItem> getOrderItems(Long orderId) {
+        return orderItemRepository.findByOrder_Id(orderId);
+    }
+
 
     // Order → OrderListResponse
     // 주문 목록에서는 상품 전체 상세가 필요하지 않으므로 주문 기본 정보만 반환한다.
@@ -277,10 +281,10 @@ public class OrderService {
                 .substring(0, 16);
     }
 
-    private List<CartItemEntity> getValidateCartItems(Long customerId, List<Long> cartItemIds) {
-        List<CartItemEntity> cartItems = cartItemIds.isEmpty()
+    private List<CartItem> getValidateCartItems(Long customerId, List<Long> cartItemIds) {
+        List<CartItem> cartItems = cartItemIds.isEmpty()
                         ? cartService.findCartEntities(customerId)
-                        : cartService.findCartEntitiesByIds(customerId, cartItemIds);
+                        : cartService.findCartEntitiesByIds(cartItemIds, customerId);
 
         if (cartItems.isEmpty()) {
             throw new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND);
@@ -297,6 +301,11 @@ public class OrderService {
     @Transactional
     public void cancelOrder(Order order) {
         order.cancel();
+    }
+
+    @Transactional
+    public void confirmOrder(Order order) {
+        order.confirm();
     }
 
     // 사용자가 주문 취소 API 호출할 때 사용

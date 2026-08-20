@@ -1,7 +1,6 @@
 package com.example.commercepaymentsystems.payments.service;
 
-import com.example.commercepaymentsystems.payments.dto.PaymentConfirmResponse;
-import com.example.commercepaymentsystems.payments.dto.PaymentRefundRequest;
+
 import com.example.commercepaymentsystems.payments.dto.PaymentRefundResponse;
 import com.example.commercepaymentsystems.payments.entity.PaymentStatus;
 import com.example.commercepaymentsystems.payments.repository.PaymentRefundRepository;
@@ -15,6 +14,8 @@ import com.example.commercepaymentsystems.products.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -74,9 +75,11 @@ public class PaymentRefundService {
         );
     }
 
-    private void restoreStock(Order order) { //PaymentCommandService에 동일 매서드 존재. 추후 수정예정
-        for (OrderItem item : order.getItems()) {
-            Product product = productService.findProductEntity(item.getProduct().getId());
+    private void restoreStock(Order order) {
+        List<OrderItem> items = orderService.getOrderItems(order.getId());
+
+        for (OrderItem item : items) {
+            Product product = productService.findEntityById(item.getProduct().getId());
             product.restoreStock(item.getQuantity());
         }
     }

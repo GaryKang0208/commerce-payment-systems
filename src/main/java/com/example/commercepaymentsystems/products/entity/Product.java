@@ -1,6 +1,5 @@
 package com.example.commercepaymentsystems.products.entity;
-
-import com.example.commercepaymentsystems.common.BaseEntity;
+import com.example.commercepaymentsystems.common.entity.BaseEntity;
 import com.example.commercepaymentsystems.products.enums.ProductCategory;
 import com.example.commercepaymentsystems.products.enums.ProductStatus;
 import jakarta.persistence.*;
@@ -8,7 +7,6 @@ import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)

@@ -1,6 +1,6 @@
-package com.example.commercepaymentsystems.order.repository;
+package com.example.commercepaymentsystems.orders.repository;
 
-import com.example.commercepaymentsystems.order.entity.OrderItem;
+import com.example.commercepaymentsystems.orders.entity.OrderItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

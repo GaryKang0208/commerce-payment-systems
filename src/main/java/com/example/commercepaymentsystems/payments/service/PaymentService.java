@@ -1,6 +1,6 @@
 package com.example.commercepaymentsystems.payments.service;
 
-import com.example.commercepaymentsystems.order.entity.Order;
+import com.example.commercepaymentsystems.orders.entity.Order;
 import com.example.commercepaymentsystems.payments.dto.PaymentResponse;
 import com.example.commercepaymentsystems.payments.entity.Payment;
 import com.example.commercepaymentsystems.payments.entity.PaymentStatus;

@@ -9,6 +9,7 @@ import com.example.commercepaymentsystems.orders.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,7 +26,7 @@ public class OrderController {
     // 이 단계에서는 실제 주문을 생성하지 않는다.
     @GetMapping("/preview")
     public ResponseEntity<OrderPreviewResponse> getOrderPreview(
-            @RequestParam Long customerId
+            @AuthenticationPrincipal Long customerId
     ) {
 
         OrderPreviewResponse response =
@@ -38,7 +39,7 @@ public class OrderController {
     // 주문 생성
     @PostMapping
     public ResponseEntity<CreateOrderResponse> createOrder(
-            @RequestParam Long customerId,
+           @AuthenticationPrincipal Long customerId,
             @RequestBody CreateOrderRequest request
     ) {
 
@@ -54,7 +55,7 @@ public class OrderController {
     // 내 주문 목록 조회
     @GetMapping
     public ResponseEntity<List<OrderListResponse>> getOrders(
-            @RequestParam Long customerId
+            @AuthenticationPrincipal Long customerId
     ) {
 
         List<OrderListResponse> response =
@@ -68,7 +69,7 @@ public class OrderController {
     // orderId와 customerId를 함께 확인해서 본인의 주문만 조회할 수 있도록 한다.
     @GetMapping("/{orderId}")
     public ResponseEntity<OrderDetailResponse> getOrder(
-            @RequestParam Long customerId,
+            @AuthenticationPrincipal Long customerId,
             @PathVariable Long orderId
     ) {
 
@@ -81,7 +82,7 @@ public class OrderController {
     // 주문 취소
     @PatchMapping("/{orderId}/cancel")
     public ResponseEntity<Void> cancelOrder(
-            @RequestParam Long customerId,
+            @AuthenticationPrincipal Long customerId,
             @PathVariable Long orderId
     ) {
 

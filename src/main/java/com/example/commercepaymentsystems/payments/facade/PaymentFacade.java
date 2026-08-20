@@ -2,8 +2,8 @@ package com.example.commercepaymentsystems.payments.facade;
 
 import com.example.commercepaymentsystems.common.exception.BusinessException;
 import com.example.commercepaymentsystems.common.exception.ErrorCode;
-import com.example.commercepaymentsystems.order.entity.Order;
-import com.example.commercepaymentsystems.order.entity.OrderStatus;
+import com.example.commercepaymentsystems.orders.entity.Order;
+import com.example.commercepaymentsystems.orders.entity.OrderStatus;
 import com.example.commercepaymentsystems.payments.dto.PaymentConfirmRequest;
 import com.example.commercepaymentsystems.payments.dto.PaymentConfirmResponse;
 import com.example.commercepaymentsystems.payments.entity.Payment;
