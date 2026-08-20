@@ -27,6 +27,15 @@ public enum ErrorCode {
     INVALID_MAXIMUM_PRICE(HttpStatus.BAD_REQUEST, "PRODUCT_005", "최대값 가격은 0이상이어야 합니다."),
     INVALID_PRICE_RANGE(HttpStatus.BAD_REQUEST, "PRODUCT_006", "최소 가격은 최대 가격보다 클수 없다"),
 
+    // Order (ORDER_xxx)
+    CART_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_001", "장바구니 상품을 찾을 수 없습니다."),
+    CART_ITEM_FORBIDDEN(HttpStatus.FORBIDDEN, "ORDER_002", "본인의 장바구니 상품만 조회할 수 있습니다."),
+    ORDER_PRODUCT_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_003", "상품을 찾을 수 없습니다."),
+    INSUFFICIENT_STOCK(HttpStatus.BAD_REQUEST, "ORDER_004", "상품 재고가 부족합니다."),
+    ORDER_NOT_FOUND(HttpStatus.NOT_FOUND, "ORDER_005", "주문을 찾을 수 없습니다."),
+    ORDER_ACCESS_DENIED(HttpStatus.FORBIDDEN, "ORDER_006", "본인의 주문만 조회할 수 있습니다."),
+    ORDER_UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "ORDER_007", "인증이 필요합니다."),
+    INVALID_ORDER_STATUS(HttpStatus.CONFLICT, "ORDER_008", "변경할 수 없는 주문 상태입니다."),
     //payments (PAYMENT_xxx)
     PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_001", "결제 정보를 찾을 수 없습니다."),
     INVALID_PAYMENT_STATUS(HttpStatus.BAD_REQUEST, "PAYMENT_002", "유효하지 않은 상태입니다."),
