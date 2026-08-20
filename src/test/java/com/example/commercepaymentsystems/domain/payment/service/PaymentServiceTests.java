@@ -67,4 +67,64 @@ public class PaymentServiceTests {
         //when&then
         assertThrows(RuntimeException.class, () -> service.getPayment(1L, 1L));
     }
+
+    @Test
+    @DisplayName("orderId를 통해 Payment 및 Order 정보 조회")
+    void find_payment_by_order_id_success() {
+        //given
+        Customer customer = new Customer(
+                "email@email.com",
+                "password",
+                "name"
+        );
+        ReflectionTestUtils.setField(customer, "id", 1L);
+        Payment payment = new Payment(
+                10000L,
+                PaymentStatus.IN_PROGRESS,
+                new Order(
+                        customer
+                )
+        );
+        given(repo.findByOrderIdWithOrder(anyLong())).willReturn(Optional.of(payment));
+
+        //when
+        Payment found = service.findByOrderIdWithOrder(1L);
+
+        //then
+        verify(repo).findByOrderIdWithOrder(anyLong());
+        assertEquals(10000L, found.getFinalPrice());
+    }
+
+    @Test
+    @DisplayName("orderId를 통해 Payment 및 Order 정보 조회 - 찾을 수 없음")
+    void find_payment_by_order_id_failure() {
+        //given
+        given(repo.findByOrderIdWithOrder(anyLong())).willReturn(Optional.empty());
+
+        //when&then
+        assertThrows(RuntimeException.class, () -> service.findByOrderIdWithOrder(1L));
+    }
+
+    @Test
+    @DisplayName("payment 상태 변경(실패) - 성공")
+    void change_payment_status_success() {
+        //given
+        Payment payment = new Payment(
+                10000L,
+                PaymentStatus.IN_PROGRESS,
+                new Order(
+                        new Customer(
+                                "email",
+                                "password",
+                                "name"
+                        )
+                )
+        );
+
+        //when
+        service.failPayment(payment);
+
+        //then
+        assertEquals(PaymentStatus.FAILED, payment.getStatus());
+    }
 }

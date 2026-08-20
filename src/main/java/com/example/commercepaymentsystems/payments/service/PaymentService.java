@@ -1,7 +1,9 @@
 package com.example.commercepaymentsystems.payments.service;
 
+import com.example.commercepaymentsystems.order.entity.Order;
 import com.example.commercepaymentsystems.payments.dto.PaymentResponse;
 import com.example.commercepaymentsystems.payments.entity.Payment;
+import com.example.commercepaymentsystems.payments.entity.PaymentStatus;
 import com.example.commercepaymentsystems.payments.repository.PaymentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,12 +27,25 @@ public class PaymentService {
                 .orElseThrow(() -> new RuntimeException("Payment not found"));
     }
 
+    @Transactional
     public void failPayment(Payment payment) {
         payment.markAsFailed();
     }
 
+    @Transactional
     public void confirmPayment(Payment payment) {
         payment.markAsPaid();
+    }
+
+    @Transactional
+    public void createPayment(Order order, Long totalPrice) {
+        Payment payment = new Payment(
+                totalPrice,
+                PaymentStatus.IN_PROGRESS,
+                order
+        );
+
+        paymentRepository.save(payment);
     }
 
     private PaymentResponse toResponse(Payment payment) {

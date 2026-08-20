@@ -1,6 +1,6 @@
 package com.example.commercepaymentsystems.cart.repository;
 
-import com.example.commercepaymentsystems.cart.entity.CartItemEntity;
+import com.example.commercepaymentsystems.cart.entity.CartItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.repository.query.Param;
 
@@ -8,16 +8,19 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface CartItemRepository extends JpaRepository<CartItemEntity, Long>{
-    List<CartItemEntity> findByCartId(@Param("cartId") Long cartId);
+public interface CartItemRepository extends JpaRepository<CartItem, Long>{
+    List<CartItem> findByCartId(@Param("cartId") Long cartId);
 
-    Optional<CartItemEntity> findByCartIdAndProductId(Long cartId, Long productId);
+    List<CartItem> findByCart_CustomerId(Long customerId);
+    List<CartItem> findByIdInAndCart_CustomerId(List<Long> ids, Long customerId);
+
+    Optional<CartItem> findByCartIdAndProductId(Long cartId, Long productId);
 
     int deleteByIdAndCartId(@Param("id") Long id,
                              @Param("cartId")
                              Long cartId);
 
-    Optional<CartItemEntity> findByIdAndCartId(Long id, Long cartId);
+    Optional<CartItem> findByIdAndCartId(Long id, Long cartId);
 
     void deleteByCartId(@Param("cartId") Long cartId);
 

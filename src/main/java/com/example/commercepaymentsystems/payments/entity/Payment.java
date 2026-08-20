@@ -1,7 +1,7 @@
 package com.example.commercepaymentsystems.payments.entity;
 
-import com.example.commercepaymentsystems.common.BaseEntity;
-import com.example.commercepaymentsystems.orders.entity.Order;
+import com.example.commercepaymentsystems.common.entity.BaseEntity;
+import com.example.commercepaymentsystems.order.entity.Order;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -50,7 +50,7 @@ public class Payment extends BaseEntity {
 
     private void changeStatus(PaymentStatus nextStatus) {
         if (!this.status.canTransitTo(nextStatus)) {
-            throw new IllegalArgumentException("유효하지 않은 상태 변경");
+            throw new RuntimeException("유효하지 않은 상태 변경");
         }
 
         this.status = nextStatus;
