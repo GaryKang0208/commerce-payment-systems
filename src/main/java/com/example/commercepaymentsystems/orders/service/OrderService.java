@@ -1,14 +1,24 @@
-package com.example.commercepaymentsystems.order.service;
+package com.example.commercepaymentsystems.orders.service;
 
-import com.example.commercepaymentsystems.order.dto.request.CreateOrderRequest;
-import com.example.commercepaymentsystems.order.dto.response.CreateOrderResponse;
-import com.example.commercepaymentsystems.order.dto.response.OrderDetailResponse;
-import com.example.commercepaymentsystems.order.dto.response.OrderListResponse;
-import com.example.commercepaymentsystems.order.dto.response.OrderPreviewResponse;
-import com.example.commercepaymentsystems.order.entity.Order;
-import com.example.commercepaymentsystems.order.entity.OrderItem;
-import com.example.commercepaymentsystems.order.repository.OrderItemRepository;
-import com.example.commercepaymentsystems.order.repository.OrderRepository;
+import com.example.commercepaymentsystems.cart.entity.CartItemEntity;
+import com.example.commercepaymentsystems.cart.service.CartService;
+import com.example.commercepaymentsystems.customers.entity.Customers;
+import com.example.commercepaymentsystems.customers.repository.CustomersRepository;
+import com.example.commercepaymentsystems.orders.dto.request.CreateOrderRequest;
+import com.example.commercepaymentsystems.orders.dto.response.CreateOrderResponse;
+import com.example.commercepaymentsystems.orders.dto.response.OrderDetailResponse;
+import com.example.commercepaymentsystems.orders.dto.response.OrderListResponse;
+import com.example.commercepaymentsystems.orders.dto.response.OrderPreviewResponse;
+import com.example.commercepaymentsystems.orders.entity.Order;
+import com.example.commercepaymentsystems.orders.entity.OrderItem;
+import com.example.commercepaymentsystems.orders.repository.OrderItemRepository;
+import com.example.commercepaymentsystems.orders.repository.OrderRepository;
+import com.example.commercepaymentsystems.payments.entity.Payment;
+import com.example.commercepaymentsystems.payments.entity.PaymentStatus;
+import com.example.commercepaymentsystems.payments.repository.PaymentRepository;
+import com.example.commercepaymentsystems.payments.service.PaymentService;
+import com.example.commercepaymentsystems.products.entity.Product;
+import com.example.commercepaymentsystems.products.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,9 +34,9 @@ public class OrderService {
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
 
-    private final CustomerRepository customerRepository;
-    private final CartItemRepository cartItemRepository;
+    private final CustomersRepository customersRepository;
     private final CartService cartService;
+    private final ProductService productService;
     private final PaymentService paymentService;
 
 
@@ -35,8 +45,8 @@ public class OrderService {
     public OrderPreviewResponse getOrderPreview(Long customerId) {
 
         // 1. 고객의 장바구니 전체 조회
-        List<CartItem> cartItems =
-                cartItemRepository.findByCustomer_Id(customerId);
+        List<CartItemEntity> cartItems =
+                cartService.findCartEntities(customerId);
 
         // 2. 장바구니가 비어 있으면 미리보기 불가
         if (cartItems.isEmpty()) {
@@ -50,8 +60,7 @@ public class OrderService {
         List<OrderPreviewResponse.OrderPreviewItemResponse> items =
                 cartItems.stream()
                         .map(cartItem -> {
-
-                            Product product = cartItem.getProduct();
+                            Product product = productService.findEntityById(cartItem.getProductId());
 
                             Long price = product.getPrice();
                             Integer quantity = cartItem.getQuantity();
@@ -106,7 +115,7 @@ public class OrderService {
     ) {
 
         // 1. 주문한 고객 조회
-        Customer customer = customerRepository.findById(customerId)
+        Customers customer = customersRepository.findById(customerId)
                 .orElseThrow(
                         () -> new IllegalArgumentException(
                                 "고객 정보를 찾을 수 없습니다."
@@ -117,75 +126,30 @@ public class OrderService {
 
         // 2. 주문할 장바구니 상품 조회
         // cartItemIds가 비어 있다면 해당 고객의 전체 장바구니를 주문한다.
-        List<CartItem> cartItems;
+        List<CartItemEntity> cartItems = getValidateCartItems(customerId, cartItemIds);
 
-        if (cartItemIds.isEmpty()) {
-
-            cartItems =
-                    cartService.findCartEntities(customerId);
-
-        } else {
-
-            cartItems =
-                    cartService.findCartEntitiesByIds(
-                            cartItemIds,
-                            customerId
-                    );
-        }
-
-        // 장바구니가 비어 있다면 주문할 수 없다.
-        if (cartItems.isEmpty()) {
-            throw new IllegalArgumentException("주문할 장바구니 상품이 없습니다.");
-        }
-
-
-        // 선택 주문인 경우
-        // 요청한 cartItemIds 개수와 실제 조회한 개수가 다르다면 존재하지 않는 장바구니 상품 또는 다른 고객의 상품이 포함됐다는 뜻이다.
-        if (!cartItemIds.isEmpty()
-                && cartItems.size() != cartItemIds.size()) {
-
-            throw new IllegalArgumentException("유효하지 않은 장바구니 상품이 포함되어 있습니다.");
-        }
-
-        // 3. 모든 상품 재고 검증
-        // 여기서는 아직 재고를 차감하지 않는다.
-        // 주문 상품 중 단 하나라도 재고가 부족하면 전체 주문을 실패시키기 위해 먼저 모든 상품의 재고를 검사한다.
-        for (CartItem cartItem : cartItems) {
-
-            Product product = cartItem.getProduct();
-
-            if (product.getStock() < cartItem.getQuantity()) {
-
-                throw new IllegalArgumentException(
-                        product.getName()
-                                + " 상품의 재고가 부족합니다."
-                );
-            }
-        }
-
-        // 4. 재고 차감 + 총 주문금액 계산
+        // 3. 재고 차감 + 총 주문금액 계산
         // 재고 검증이 모두 끝났기 때문에 이제 실제 재고를 차감한다.
         long totalPrice = 0L;
 
-        for (CartItem cartItem : cartItems) {
+        for (CartItemEntity cartItem : cartItems) {
 
-            Product product = cartItem.getProduct();
+            Product product = productService.findEntityById(cartItem.getProductId());
             Integer quantity = cartItem.getQuantity();
 
             product.decreaseStock(quantity);
 
             // 총 주문금액은 반드시 서버에서 계산한다.
             // 클라이언트가 전달한 금액은 신뢰하지 않는다.
-            long subtotal =
-                    product.getPrice() * quantity;
+            long subtotal = product.getPrice() * quantity;
 
             totalPrice += subtotal;
         }
 
-        // 5. 주문번호 생성
+        // 4. 주문번호 생성
         String orderNumber = generateOrderNumber();
 
-        // 6. Order 생성
+        // 5. Order 생성
         // Order 생성자 내부에서 OrderStatus.PENDING_PAYMENT로 초기화된다.
         Order order = new Order(
                 customer,
@@ -196,14 +160,14 @@ public class OrderService {
         Order savedOrder =
                 orderRepository.save(order);
 
-        // 7. 주문상품 생성
+        // 6. 주문상품 생성
         // OrderItem 생성자에서 productName과 productPrice를 복사하여 주문 당시 상품 정보를 스냅샷으로 보관한다.
         List<OrderItem> orderItems =
                 cartItems.stream()
                         .map(cartItem ->
                                 new OrderItem(
                                         savedOrder,
-                                        cartItem.getProduct(),
+                                        productService.findEntityById(cartItem.getProductId()),
                                         cartItem.getQuantity()
                                 )
                         )
@@ -211,16 +175,14 @@ public class OrderService {
 
         orderItemRepository.saveAll(orderItems);
 
-        // 8. 결제 사전 기록 생성
+        // 7. 결제 사전 기록 생성
         // 결제 금액은 반드시 주문에서 계산한 totalAmount를 사용한다.
-        Payment payment = new Payment(savedOrder, totalPrice);
-
-        paymentRepository.save(payment);
+        paymentService.createPayment(savedOrder, totalPrice);
 
         // 주문 생성 시 장바구니는 삭제하지 않는다.
         // 결제 실패 후 다시 결제할 수 있어야 하기 때문에 장바구니 삭제는 결제 성공 시점에 처리한다.
 
-        // 9. 주문 생성 결과 반환
+        // 8. 주문 생성 결과 반환
         return new CreateOrderResponse(
                 savedOrder.getId(),
                 savedOrder.getOrderNumber(),
@@ -317,5 +279,21 @@ public class OrderService {
                 .toString()
                 .replace("-", "")
                 .substring(0, 16);
+    }
+
+    private List<CartItemEntity> getValidateCartItems(Long customerId, List<Long> cartItemIds) {
+        List<CartItemEntity> cartItems = cartItemIds.isEmpty()
+                        ? cartService.findCartEntities(customerId)
+                        : cartService.findCartEntitiesByIds(customerId, cartItemIds);
+
+        if (cartItems.isEmpty()) {
+            throw new IllegalArgumentException("주문할 장바구니 상품이 없습니다.");
+        }
+
+        if (!cartItemIds.isEmpty() && cartItems.size() != cartItemIds.size()) {
+            throw new IllegalArgumentException("유효하지 않은 장바구니 상품이 포함되어 있습니다.");
+        }
+
+        return cartItems;
     }
 }

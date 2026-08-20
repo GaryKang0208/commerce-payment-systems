@@ -1,11 +1,11 @@
-package com.example.commercepaymentsystems.order.controller;
+package com.example.commercepaymentsystems.orders.controller;
 
-import com.example.commercepaymentsystems.order.dto.request.CreateOrderRequest;
-import com.example.commercepaymentsystems.order.dto.response.CreateOrderResponse;
-import com.example.commercepaymentsystems.order.dto.response.OrderDetailResponse;
-import com.example.commercepaymentsystems.order.dto.response.OrderListResponse;
-import com.example.commercepaymentsystems.order.dto.response.OrderPreviewResponse;
-import com.example.commercepaymentsystems.order.service.OrderService;
+import com.example.commercepaymentsystems.orders.dto.request.CreateOrderRequest;
+import com.example.commercepaymentsystems.orders.dto.response.CreateOrderResponse;
+import com.example.commercepaymentsystems.orders.dto.response.OrderDetailResponse;
+import com.example.commercepaymentsystems.orders.dto.response.OrderListResponse;
+import com.example.commercepaymentsystems.orders.dto.response.OrderPreviewResponse;
+import com.example.commercepaymentsystems.orders.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
