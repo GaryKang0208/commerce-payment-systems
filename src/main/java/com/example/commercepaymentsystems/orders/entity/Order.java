@@ -1,6 +1,9 @@
-package com.example.commercepaymentsystems.order.entity;
+package com.example.commercepaymentsystems.orders.entity;
 
-import com.example.commercepaymentsystems.common.BaseEntity;
+import com.example.commercepaymentsystems.common.entity.BaseEntity;
+import com.example.commercepaymentsystems.common.exception.BusinessException;
+import com.example.commercepaymentsystems.common.exception.ErrorCode;
+import com.example.commercepaymentsystems.customers.entity.Customers;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -18,7 +21,7 @@ public class Order extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "customer_id", nullable = false)
-    private Customer customer;
+    private Customers customer;
 
     @Column(name = "order_number", nullable = false, unique = true)
     private String orderNumber;
@@ -30,7 +33,7 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     private OrderStatus orderStatus;
 
-    public Order(Customer customer, String orderNumber, Long totalPrice) {
+    public Order(Customers customer, String orderNumber, Long totalPrice) {
         this.customer = customer;
         this.orderNumber = orderNumber;
         this.totalPrice = totalPrice;
@@ -38,10 +41,18 @@ public class Order extends BaseEntity {
     }
 
     public void confirm() {
-        this.orderStatus = OrderStatus.CONFIRMED;
+        changeStatus(OrderStatus.CONFIRMED);
     }
 
     public void cancel() {
-        this.orderStatus = OrderStatus.CANCELED;
+        changeStatus(OrderStatus.CANCELED);
+    }
+
+    private void changeStatus(OrderStatus newStatus) {
+        if (!this.orderStatus.canTransitTo(newStatus)) {
+            throw new BusinessException(ErrorCode.INVALID_ORDER_STATUS);
+        }
+
+        this.orderStatus = newStatus;
     }
 }
