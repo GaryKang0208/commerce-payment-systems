@@ -3,10 +3,14 @@ package com.example.commercepaymentsystems.cart.service;
 import com.example.commercepaymentsystems.cart.dto.response.AddCartResponse;
 import com.example.commercepaymentsystems.cart.dto.response.CartItemResponse;
 import com.example.commercepaymentsystems.cart.dto.response.CartResponse;
-import com.example.commercepaymentsystems.cart.entity.CartEntity;
-import com.example.commercepaymentsystems.cart.entity.CartItemEntity;
+import com.example.commercepaymentsystems.cart.entity.Cart;
+import com.example.commercepaymentsystems.cart.entity.CartItem;
 import com.example.commercepaymentsystems.cart.repository.CartItemRepository;
 import com.example.commercepaymentsystems.cart.repository.CartRepository;
+import com.example.commercepaymentsystems.common.exception.BusinessException;
+import com.example.commercepaymentsystems.common.exception.ErrorCode;
+import com.example.commercepaymentsystems.products.entity.Product;
+import com.example.commercepaymentsystems.products.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,29 +23,31 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class CartService {
 
-    private static final String DUMMY_PRODUCT_NAME = "상품명";
-    private static final int DUMMY_PRICE = 10000;
+
 
     private final CartRepository cartRepository;
     private final CartItemRepository cartItemRepository;
+    private final ProductRepository productRepository;
 
     @Transactional
     public AddCartResponse addItem(Long customerId, Long productId, int quantity){
-        CartEntity cart = getOrCreateCart(customerId);
-        Optional<CartItemEntity> existing = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId);
-        CartItemEntity item;
+        Cart cart = getOrCreateCart(customerId);
+                 Product product  = productRepository.findById(productId)
+                .orElseThrow(()-> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+        Optional<CartItem> existing = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId);
+        CartItem item;
         if(existing.isPresent()){
             item = existing.get();
             item.addQuantity(quantity);
         }else{
-            item = cartItemRepository.save(new CartItemEntity(cart, productId, quantity));
+            item = cartItemRepository.save(new CartItem(cart, productId, quantity));
         }
         return new AddCartResponse(
                 item.getProductId(),
-                DUMMY_PRODUCT_NAME,
+                product.getName(),
                 item.getQuantity(),
-                DUMMY_PRICE,
-                DUMMY_PRICE * item.getQuantity(),
+                product.getPrice().intValue(),
+                (int) (product.getPrice() * item.getQuantity()),
                 item.getId()
         );
     }
@@ -64,20 +70,20 @@ public class CartService {
 
     @Transactional
     public void updateQuantity(Long customerId, Long itemId, int quantity){
-        CartEntity cart = cartRepository.findByCustomerId(customerId)
-                .orElseThrow(() -> new RuntimeException("장바구니를 찾을 수 없습니다."));
-        CartItemEntity item = cartItemRepository.findByIdAndCartId(itemId, cart.getId())
-                .orElseThrow(() -> new RuntimeException("장바구니 항목을 찾을 수 없습니다."));
+        Cart cart = cartRepository.findByCustomerId(customerId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND));
+        CartItem item = cartItemRepository.findByIdAndCartId(itemId, cart.getId())
+                .orElseThrow(() -> new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND));
         item.changeQuantity(quantity);
     }
 
     @Transactional
     public void removeItem(Long customerId, Long itemId){
-        CartEntity cart = cartRepository.findByCustomerId(customerId)
-                .orElseThrow(() -> new RuntimeException("장바구니를 찾을 수 없습니다."));
+        Cart cart = cartRepository.findByCustomerId(customerId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND));
         int deleted = cartItemRepository.deleteByIdAndCartId(itemId, cart.getId());
         if(deleted == 0){
-            throw new RuntimeException("장바구니 항목을 찾을 수 없습니다.");
+            throw new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND);
         }
     }
 
@@ -87,18 +93,21 @@ public class CartService {
                 .ifPresent(cart -> cartItemRepository.deleteByCartId(cart.getId()));
     }
 
-    private CartEntity getOrCreateCart(Long customerId){
+    private Cart getOrCreateCart(Long customerId){
         return cartRepository.findByCustomerId(customerId)
-                .orElseGet(() -> cartRepository.save(new CartEntity(customerId)));
+                .orElseGet(() -> cartRepository.save(new Cart(customerId)));
     }
 
-    private CartItemResponse toResponse(CartItemEntity item){
-        long itemTotalPrice = (long) DUMMY_PRICE * item.getQuantity();
+    private CartItemResponse toResponse(CartItem item){
+        Product product  = productRepository.findById(item.getProductId())
+                .orElseThrow(()-> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+        long itemTotalPrice = (long) product.getPrice() * item.getQuantity();
+
         return new CartItemResponse(
                 item.getId(),
                 item.getProductId(),
-                DUMMY_PRODUCT_NAME,
-                DUMMY_PRICE,
+                product.getName(),
+                product.getPrice().intValue(),
                 item.getQuantity(),
                 itemTotalPrice
         );
