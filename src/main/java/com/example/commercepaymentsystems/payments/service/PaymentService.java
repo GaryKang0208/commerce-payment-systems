@@ -37,6 +37,17 @@ public class PaymentService {
         payment.markAsPaid();
     }
 
+    @Transactional
+    public void createPayment(Order order, Long totalPrice) {
+        Payment payment = new Payment(
+                totalPrice,
+                PaymentStatus.IN_PROGRESS,
+                order
+        );
+
+        paymentRepository.save(payment);
+    }
+
     private PaymentResponse toResponse(Payment payment) {
         return new PaymentResponse(
                 payment.getFinalPrice(),
