@@ -1,9 +1,19 @@
 package com.example.commercepaymentsystems.products.service;
 
+import com.example.commercepaymentsystems.common.exception.BusinessException;
+import com.example.commercepaymentsystems.common.exception.ErrorCode;
+import com.example.commercepaymentsystems.products.dto.ProductPageResponse;
 import com.example.commercepaymentsystems.products.dto.ProductResponse;
 import com.example.commercepaymentsystems.products.entity.Product;
+import com.example.commercepaymentsystems.products.enums.ProductCategory;
 import com.example.commercepaymentsystems.products.repository.ProductRepository;
+import com.example.commercepaymentsystems.products.specification.ProductSpecification;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -13,7 +23,7 @@ import java.util.List;
 public class ProductService {
     public final ProductRepository productRepository;
 
-    public ProductPageResponse findAll(int page, int size, ProductCategory category, Long minimumPrice, Long maximumPrice,String sort) {
+    public ProductPageResponse findAll(int page, int size, ProductCategory category, Long minimumPrice, Long maximumPrice, String sort) {
         if (page <0){
             throw new BusinessException(ErrorCode.INVALID_PAGE);
         }//페이지
@@ -70,7 +80,9 @@ public class ProductService {
                 product.getDescription(),
                 product.getCategory(),
                 product.getCreatedAt(),
-                product.getUpdatedAt()
+                product.getUpdatedAt(),
+                product.getSalesStatus(),
+                product.getStock() == 0
 
         );
     }
