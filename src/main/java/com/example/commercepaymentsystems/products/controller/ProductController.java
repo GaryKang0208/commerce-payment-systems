@@ -21,8 +21,9 @@ public class ProductController {
                                                                    @RequestParam int size,
                                                                    @RequestParam(required = false) ProductCategory category,
                                                                    @RequestParam(required = false) Long minimumPrice,
-                                                                   @RequestParam(required = false) Long maximumPrice){
-        return ResponseEntity.ok(ApiResponse.ok(productService.findAll(page,size,category,minimumPrice,maximumPrice)));
+                                                                   @RequestParam(required = false) Long maximumPrice,
+                                                                    @RequestParam(defaultValue = "asc") String sort){
+        return ResponseEntity.ok(ApiResponse.ok(productService.findAll(page,size,category,minimumPrice,maximumPrice,sort)));
     }
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<ProductResponse>> findOne(@PathVariable Long id){
