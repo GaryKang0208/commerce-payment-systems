@@ -70,7 +70,8 @@ public class ProductService {
                 product.getCategory(),
                 product.getCreatedAt(),
                 product.getUpdatedAt(),
-                product.getSalesStatus()
+                product.getSalesStatus(),
+                product.getStock()==0
 
         );
     }

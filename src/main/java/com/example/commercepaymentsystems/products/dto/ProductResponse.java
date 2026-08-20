@@ -15,6 +15,7 @@ public record ProductResponse(
         ProductCategory category,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
-        ProductStatus salesStatus
+        ProductStatus salesStatus,
+        boolean soldOut
 ) {
 }
