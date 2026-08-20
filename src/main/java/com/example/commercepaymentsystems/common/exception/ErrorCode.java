@@ -25,7 +25,14 @@ public enum ErrorCode {
     INVALID_PAGE_SIZE(HttpStatus.BAD_REQUEST, "PRODUCT_003", "페이지 크기는 1 이상 100 이하이어야 합니다"),
     INVALID_MINIMUM_PRICE(HttpStatus.BAD_REQUEST, "PRODUCT_004", "최소 가격은 0이상이어야 합니다."),
     INVALID_MAXIMUM_PRICE(HttpStatus.BAD_REQUEST, "PRODUCT_005", "최대값 가격은 0이상이어야 합니다."),
-    INVALID_PRICE_RANGE(HttpStatus.BAD_REQUEST, "PRODUCT_006", "최소 가격은 최대 가격보다 클수 없다");
+    INVALID_PRICE_RANGE(HttpStatus.BAD_REQUEST, "PRODUCT_006", "최소 가격은 최대 가격보다 클수 없다"),
+
+    //cart (CART_xxx)
+    CART_EMPTY(HttpStatus.BAD_REQUEST, "CART_001", "장바구니가 비어있습니다." ),
+    CART_ITEM_NOT_FOUND(HttpStatus.NOT_FOUND, "CART_002", "장바구니 항목을 찾을 수 없습니다."),
+    INVALID_QUANTITY(HttpStatus.BAD_REQUEST, "CART_003", "수량은 1 이상이어야 합니다."),
+    STOCK_EXCEEDED(HttpStatus.CONFLICT,"CART_004", "재고가 부족하여 담을 수 없습니다.");
+
 
     private final HttpStatus status;
     private final String code;
