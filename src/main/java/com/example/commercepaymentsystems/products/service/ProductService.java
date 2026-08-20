@@ -66,6 +66,11 @@ public class ProductService {
                 ));
         return toResponse(product);
     }
+    public Product findEntityById(Long id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND)
+                );
+    } //주문쪽 요청하신 코드
     private ProductResponse toResponse(Product product){
         return new ProductResponse(
                 product.getId(),
