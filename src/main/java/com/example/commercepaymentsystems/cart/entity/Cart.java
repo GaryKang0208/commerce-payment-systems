@@ -1,6 +1,7 @@
 package com.example.commercepaymentsystems.cart.entity;
 
-import com.example.commercepaymentsystems.common.BaseEntity;
+
+
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -13,7 +14,7 @@ import lombok.NoArgsConstructor;
 })
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class CartEntity extends BaseEntity {
+public class Cart extends com.example.commercepaymentsystems.common.entity.BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -23,7 +24,7 @@ public class CartEntity extends BaseEntity {
     private Long customerId;
 
 
-    public CartEntity(Long customerId){
+    public Cart(Long customerId){
         this.customerId = customerId;
     }
 }
