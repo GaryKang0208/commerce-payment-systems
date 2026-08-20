@@ -1,9 +1,10 @@
 package com.example.commercepaymentsystems.payments.service;
 
+import com.example.commercepaymentsystems.cart.entity.CartItemEntity;
 import com.example.commercepaymentsystems.cart.service.CartService;
-import com.example.commercepaymentsystems.orders.entity.Order;
-import com.example.commercepaymentsystems.orders.entity.OrderItem;
-import com.example.commercepaymentsystems.orders.service.OrderService;
+import com.example.commercepaymentsystems.order.entity.Order;
+import com.example.commercepaymentsystems.order.entity.OrderItem;
+import com.example.commercepaymentsystems.order.service.OrderService;
 import com.example.commercepaymentsystems.payments.dto.PaymentConfirmResponse;
 import com.example.commercepaymentsystems.payments.entity.Payment;
 import com.example.commercepaymentsystems.products.entity.Product;
@@ -11,6 +12,8 @@ import com.example.commercepaymentsystems.products.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -39,20 +42,22 @@ public class PaymentCommandService {
         paymentService.confirmPayment(payment);
         orderService.confirmOrder(order);
 
-        cartService.clearCartItems();
+        cartService.removeAllItems(order.getCustomer().getId());
 
         return new PaymentConfirmResponse(
                 payment.getId(),
                 orderId,
                 payment.getFinalPrice(),
                 payment.getStatus().name(),
-                order.getStatus().name()
+                order.getOrderStatus().name()
         );
     }
 
     private void restoreStock(Order order) {
-        for (OrderItem item : order.getItems()) {
-            Product product = productService.findProductEntity(item.getProduct().getId());
+        List<OrderItem> items = orderService.getOrderItems(order.getId());
+
+        for (OrderItem item : items) {
+            Product product = productService.findProductById(item.getProduct().getId());
             product.restoreStock(item.getQuantity());
         }
     }

@@ -25,7 +25,18 @@ public enum ErrorCode {
     INVALID_PAGE_SIZE(HttpStatus.BAD_REQUEST, "PRODUCT_003", "페이지 크기는 1 이상 100 이하이어야 합니다"),
     INVALID_MINIMUM_PRICE(HttpStatus.BAD_REQUEST, "PRODUCT_004", "최소 가격은 0이상이어야 합니다."),
     INVALID_MAXIMUM_PRICE(HttpStatus.BAD_REQUEST, "PRODUCT_005", "최대값 가격은 0이상이어야 합니다."),
-    INVALID_PRICE_RANGE(HttpStatus.BAD_REQUEST, "PRODUCT_006", "최소 가격은 최대 가격보다 클수 없다");
+    INVALID_PRICE_RANGE(HttpStatus.BAD_REQUEST, "PRODUCT_006", "최소 가격은 최대 가격보다 클수 없다"),
+
+    //payments (PAYMENT_xxx)
+    PAYMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "PAYMENT_001", "결제 정보를 찾을 수 없습니다."),
+    INVALID_PAYMENT_STATUS(HttpStatus.BAD_REQUEST, "PAYMENT_002", "유효하지 않은 상태입니다."),
+    ALREADY_PROCESSED_PAYMENT(HttpStatus.BAD_REQUEST, "PAYMENT_003", "이미 처리된 결제입니다."),
+    PAYMENT_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST, "PAYMENT_004", "결제 금액 정보가 일치하지 않습니다."),
+    PG_PAYMENT_FAILURE(HttpStatus.BAD_REQUEST, "PAYMENT_005", "PG 결제 시도 실패"),
+
+    //order (ORDER_xxx)
+    ORDER_NOT_FOUND(HttpStatus.BAD_REQUEST, "ORDER_001", "주문을 찾을 수 없습니다."),
+    INVALID_ORDER_STATUS(HttpStatus.BAD_REQUEST, "ORDER_001", "유효하지 않은 상태입니다.");
 
     private final HttpStatus status;
     private final String code;
