@@ -43,7 +43,7 @@ public class CartService {
         Cart cart = getOrCreateCart(customerId);
                  Product product  = productRepository.findById(productId)
                 .orElseThrow(()-> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
-        Optional<CartItem> existing = cartItemRepository.findByCartIdAndProductId(cart.getId(), productId);
+        Optional<CartItem> existing = cartItemRepository.findByCart_IdAndProductId(cart.getId(), productId);
         CartItem item;
         if(existing.isPresent()) {
             item = existing.get();
@@ -69,7 +69,7 @@ public class CartService {
 
     public CartResponse getCart(Long customerId){
         List<CartItemResponse> items = cartRepository.findByCustomerId(customerId)
-                        .map(cart -> cartItemRepository.findByCartId(cart.getId()).stream()
+                        .map(cart -> cartItemRepository.findByCart_Id(cart.getId()).stream()
                         .map(this::toResponse)
                         .toList())
                 .orElseGet(List::of);
@@ -87,7 +87,7 @@ public class CartService {
     public void updateQuantity(Long customerId, Long itemId, int quantity){
         Cart cart = cartRepository.findByCustomerId(customerId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND));
-        CartItem item = cartItemRepository.findByIdAndCartId(itemId, cart.getId())
+        CartItem item = cartItemRepository.findByIdAndCart_Id(itemId, cart.getId())
                 .orElseThrow(() -> new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND));
 
         Product product  = productRepository.findById(item.getProductId())
@@ -102,7 +102,7 @@ public class CartService {
     public void removeItem(Long customerId, Long itemId){
         Cart cart = cartRepository.findByCustomerId(customerId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND));
-        int deleted = cartItemRepository.deleteByIdAndCartId(itemId, cart.getId());
+        int deleted = cartItemRepository.deleteByIdAndCart_Id(itemId, cart.getId());
         if(deleted == 0){
             throw new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND);
         }
@@ -111,7 +111,7 @@ public class CartService {
     @Transactional
     public void removeAllItems(Long customerId){
         cartRepository.findByCustomerId(customerId)
-                .ifPresent(cart -> cartItemRepository.deleteByCartId(cart.getId()));
+                .ifPresent(cart -> cartItemRepository.deleteByCart_Id(cart.getId()));
     }
 
     private Cart getOrCreateCart(Long customerId){
