@@ -65,7 +65,7 @@ public class PointService {
 
     @Transactional(readOnly = true)
     public List<PointTransactionResponse> getHistory(Long customerId) {
-        return pointRepository.findByCustomerIdOrderByCreatedAtDesc(customerId)
+        return pointRepository.findByCustomersIdOrderByCreatedAtDesc(customerId)
                 .stream()
                 .map(PointTransactionResponse::from)
                 .toList();
