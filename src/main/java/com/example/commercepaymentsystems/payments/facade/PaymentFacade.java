@@ -90,7 +90,7 @@ public class PaymentFacade {
         PaymentCancelResponse response = commandService.cancelPaymentAndOrder(paymentId);
 
         try {
-            paymentGateway.cancelPayment(payment.getPortoneId(), cancelReason);
+            paymentGateway.cancelPayment(payment.getPortoneId(), null, cancelReason);
         } catch (Exception e) {
             log.error("PG 결제 취소 실패 : DB 커밋됨, 수동 처리 필요 paymentId={}", response.portoneId(), e);
         }
