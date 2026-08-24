@@ -48,22 +48,25 @@ public class PortOneClient implements PaymentGateway {
     }
 
     @Override
-    public void cancelPayment(String paymentId, String reason) {
+    public void cancelPayment(String paymentId, Long amount,  String reason) {
         String idempotencyKey = UUID.randomUUID().toString();
-        log.info("PortOne 결제 취소 요청: paymentId={}, reason={}, idempotencyKey={}", paymentId, reason, idempotencyKey);
+        log.info("PortOne 결제 취소 요청: PortOnePaymentId={}, reason={}, idempotencyKey={}", paymentId, reason, idempotencyKey);
 
         for (int attempt = 1; attempt <= MAX_RETRIES; attempt++) {
             try {
                 portOneRestClient.post()
                         .uri("/payments/{paymentId}/cancel", paymentId)
                         .header("idempotency-key", idempotencyKey)
-                        .body(new PortOneCancelRequest(reason, portOneProperties.getStoreId()))
+                        .body(new PortOneCancelRequest(reason, amount, portOneProperties.getStoreId()))
                         .retrieve()
                         .toBodilessEntity();
                 return;
             } catch (ResourceAccessException e) {
                 log.warn("PortOne 취소 타임아웃 (시도 {}/{})", attempt, MAX_RETRIES);
-                if (attempt == MAX_RETRIES) throw e;
+                if (attempt == MAX_RETRIES) {
+                    log.warn("[PortOne] PortOne 환불 실패, DB 적용됨, portone에서 취소 필요 PortOnePaymentId={}", paymentId);
+                    throw e;
+                }
             }
         }
     }
