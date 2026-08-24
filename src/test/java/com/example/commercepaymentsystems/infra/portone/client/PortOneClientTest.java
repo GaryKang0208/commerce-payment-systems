@@ -103,6 +103,7 @@ class PortOneClientTest {
         //when
         portOneClient.cancelPayment(
                 "payment-123",
+                null,
                 "cancelled"
         );
 
