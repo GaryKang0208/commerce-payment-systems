@@ -28,7 +28,7 @@ public class WebhookHandler {
         String type = webhook.getClass().getSimpleName();
 
         //이미 받은 웹훅은 무시
-        Optional<WebhookEvent> saved = webhookEventService.saveIfNotDuplicate(webhookId, rawPayload, type);
+        Optional<WebhookEvent> saved = webhookEventService.saveIfNotDuplicate(webhookId, type, rawPayload);
         if (saved.isEmpty()) return;
         Long eventId = saved.get().getId();
 

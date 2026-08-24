@@ -10,7 +10,7 @@ public enum OrderStatus {
     CONFIRMED {
         @Override
         public boolean canTransitTo(OrderStatus newStatus) {
-            return false;
+            return newStatus == OrderStatus.CANCELED;
         }
     },
     CANCELED {

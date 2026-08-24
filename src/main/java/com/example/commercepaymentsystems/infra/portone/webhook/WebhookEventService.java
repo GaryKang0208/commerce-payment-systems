@@ -4,6 +4,7 @@ import com.example.commercepaymentsystems.common.exception.BusinessException;
 import com.example.commercepaymentsystems.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -12,6 +13,7 @@ import java.util.Optional;
 public class WebhookEventService {
     private final WebhookEventRepository webhookEventRepository;
 
+    @Transactional
     public Optional<WebhookEvent> saveIfNotDuplicate(String webhookId, String type, String payload) {
         if (webhookEventRepository.existsByWebhookId(webhookId)) {
             return Optional.empty();
@@ -21,14 +23,17 @@ public class WebhookEventService {
         return Optional.of(webhookEvent);
     }
 
+    @Transactional
     public void markAsProcessed(Long eventId) {
         getWebhookEvent(eventId).markAsProcessed();
     }
 
+    @Transactional
     public void markAsFailed(Long eventId) {
         getWebhookEvent(eventId).markAsFailed();
     }
 
+    @Transactional
     public void markAsIgnored(Long eventId) {
         getWebhookEvent(eventId).markAsIgnored();
     }
