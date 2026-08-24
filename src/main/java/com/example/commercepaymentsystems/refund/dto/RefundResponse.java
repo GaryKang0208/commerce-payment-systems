@@ -1,11 +1,11 @@
-package com.example.commercepaymentsystems.payments.dto;
+package com.example.commercepaymentsystems.refund.dto;
 
-public record PaymentRefundResponse(
+public record RefundResponse(
         Long paymentId,
         Long orderId,
         String orderStatus,
         String paymentStatus,
         Long refundAmount,
+        String refundStatus,
         String message
-) {
-}
+) { }

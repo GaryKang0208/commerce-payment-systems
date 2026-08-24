@@ -42,11 +42,18 @@ public enum ErrorCode {
     ALREADY_PROCESSED_PAYMENT(HttpStatus.BAD_REQUEST, "PAYMENT_003", "이미 처리된 결제입니다."),
     PAYMENT_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST, "PAYMENT_004", "결제 금액 정보가 일치하지 않습니다."),
     PG_PAYMENT_FAILURE(HttpStatus.BAD_REQUEST, "PAYMENT_005", "PG 결제 시도 실패"),
-  
+    //refunds (REFUND_xxx)
+    INVALID_REFUND_STATUS(HttpStatus.BAD_REQUEST, "REFUND_001", "유효하지 않은 상태입니다."),
+    INVALID_REFUND_ITEM(HttpStatus.BAD_REQUEST, "REFUND_002", "유효하지 않은 상품입니다."),
+    INVALID_REFUND_QUANTITY(HttpStatus.BAD_REQUEST, "REFUND_003", "유효하지 않은 환불요청입니다."),
+    ALREADY_PROCESSED_REFUND(HttpStatus.BAD_REQUEST, "REFUND_004", "이미 처리된 결제입니다."),
+    REFUND_AMOUNT_MISMATCH(HttpStatus.BAD_REQUEST, "REFUND_005", "환불 금액이 일치하지 않습니다."),
+    REFUND_QUANTITY_MISMATCH(HttpStatus.BAD_REQUEST, "REFUND_006", "환불 수량이 일치하지 않습니다."),
     //cart (CART_xxx)
     CART_EMPTY(HttpStatus.BAD_REQUEST, "CART_001", "장바구니가 비어있습니다." ),
     INVALID_QUANTITY(HttpStatus.BAD_REQUEST, "CART_003", "수량은 1 이상이어야 합니다."),
     STOCK_EXCEEDED(HttpStatus.CONFLICT,"CART_004", "재고가 부족하여 담을 수 없습니다.");
+
 
 
     private final HttpStatus status;
