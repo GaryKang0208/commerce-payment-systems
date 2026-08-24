@@ -22,7 +22,7 @@ public class WebhookEvent extends BaseEntity {
     String eventType;
     @Enumerated(EnumType.STRING)
     WebhookStatus status;
-    @Column(nullable = false)
+    @Column(nullable = false, length = 500)
     String payload;
     LocalDateTime finishedAt;
 
