@@ -66,6 +66,10 @@ public class Payment extends BaseEntity {
         changeStatus(PaymentStatus.CANCELLED);
     }
 
+    public void markAsPartCancelled() {
+        changeStatus(PaymentStatus.PART_CANCELLED);
+    }
+
     private void changeStatus(PaymentStatus nextStatus) {
         if (!this.status.canTransitTo(nextStatus)) {
             throw new RuntimeException("유효하지 않은 상태 변경");
