@@ -9,4 +9,5 @@ public record RefundItemRequest(
         @NotNull(message = "환불 수량은 필수입니다")
         Integer quantity
 
-) { }
+) {
+}
