@@ -33,7 +33,13 @@ public class SecurityConfig {
                                 .requestMatchers(
                                         "/api/products",
                                         "/api/products/**",
-                                        "/api/portone-info"
+                                        "/api/portone-info",
+                                        "/api/webhooks/portone"
+                                ).permitAll()
+                                .requestMatchers(
+                                        "/config.js",
+                                        "/index.html",
+                                        "/favicon.ico"
                                 ).permitAll()
                                 .anyRequest().authenticated())
                 .addFilterBefore(
