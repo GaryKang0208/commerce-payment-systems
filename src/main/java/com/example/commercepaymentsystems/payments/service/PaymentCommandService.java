@@ -9,7 +9,7 @@ import com.example.commercepaymentsystems.orders.service.OrderService;
 import com.example.commercepaymentsystems.payments.dto.PaymentCancelResponse;
 import com.example.commercepaymentsystems.payments.dto.PaymentConfirmResponse;
 import com.example.commercepaymentsystems.payments.entity.Payment;
-import com.example.commercepaymentsystems.point.PointService;
+import com.example.commercepaymentsystems.point.service.PointService;
 import com.example.commercepaymentsystems.products.entity.Product;
 import com.example.commercepaymentsystems.products.service.ProductService;
 import lombok.RequiredArgsConstructor;
@@ -52,6 +52,7 @@ public class PaymentCommandService {
         paymentService.confirmPayment(payment);
         orderService.confirmOrder(order);
         pointService.use(customer, payment, payment.getPointUsed());
+        pointService.earn(customer, payment, payment.getSavedPoints());
 
         cartService.removeAllItems(order.getCustomer().getId());
 
@@ -65,8 +66,8 @@ public class PaymentCommandService {
     }
 
     @Transactional
-    public PaymentCancelResponse cancelPaymentAndOrder(Long id) {
-        Payment payment = paymentService.findByOrderIdWithOrder(id);
+    public PaymentCancelResponse cancelPaymentAndOrder(Long paymentId) {
+        Payment payment = paymentService.findByIdWithOrder(paymentId);
         Order order = payment.getOrder();
         Long customerId = order.getCustomer().getId();
 
@@ -98,7 +99,8 @@ public class PaymentCommandService {
         Customers customer = customersService.findById(customerId);
 
         //복구할 포인트 계산
-        Long pointsToRestore = payment.getSavedPoints() - payment.getPointUsed();
+        long pointsToRestore = payment.getPointUsed() - payment.getSavedPoints();
+        customer.addPoint(pointsToRestore);
         pointService.restoreUse(customer, payment, pointsToRestore);
     }
 }

@@ -68,4 +68,9 @@ public class PaymentService {
                 payment.getPaidAt()
         );
     }
+
+    public Payment findByIdWithOrder(Long paymentId) {
+        return  paymentRepository.findByIdWithOrder(paymentId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_NOT_FOUND));
+    }
 }

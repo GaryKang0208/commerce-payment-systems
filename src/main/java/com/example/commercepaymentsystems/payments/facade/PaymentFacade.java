@@ -14,7 +14,7 @@ import com.example.commercepaymentsystems.payments.port.PaymentGateway;
 import com.example.commercepaymentsystems.payments.port.PaymentGatewayResponse;
 import com.example.commercepaymentsystems.payments.service.PaymentCommandService;
 import com.example.commercepaymentsystems.payments.service.PaymentService;
-import com.example.commercepaymentsystems.point.PointService;
+import com.example.commercepaymentsystems.point.service.PointService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -49,7 +49,7 @@ public class PaymentFacade {
         }
 
         //포인트 사용 가능 여부 확인
-        if (pointService.getBalance(customerId) >= payment.getPointUsed()) {
+        if (pointService.getBalance(customerId).Balance() >= payment.getPointUsed()) {
            throw new RuntimeException("Invalid point");
         }
 
@@ -76,7 +76,9 @@ public class PaymentFacade {
         String cancelReason = (request != null && request.reason() != null)
                 ? request.reason() : "사용자 요청 취소";
 
-        Payment payment = paymentService.findByOrderIdWithOrder(paymentId);
+        log.info("PaymentId: {}", paymentId);
+
+        Payment payment = paymentService.findByIdWithOrder(paymentId);
         if (!payment.getOrder().getCustomer().getId().equals(customerId)) {
             throw new BusinessException(ErrorCode.ORDER_NOT_FOUND);
         }
