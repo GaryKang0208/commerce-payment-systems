@@ -49,8 +49,8 @@ public class PaymentFacade {
         }
 
         //포인트 사용 가능 여부 확인
-        if (pointService.getBalance(customerId).Balance() >= payment.getPointUsed()) {
-           throw new RuntimeException("Invalid point");
+        if (pointService.getBalance(customerId).Balance() > payment.getPointUsed()) {
+           throw new BusinessException(ErrorCode.INSUFFICIENT_POINT);
         }
 
         //PG 사에서 실결제 정보 확인
