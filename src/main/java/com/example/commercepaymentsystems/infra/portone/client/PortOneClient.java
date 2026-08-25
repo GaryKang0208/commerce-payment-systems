@@ -1,4 +1,5 @@
 package com.example.commercepaymentsystems.infra.portone.client;
+
 import com.example.commercepaymentsystems.common.exception.BusinessException;
 import com.example.commercepaymentsystems.common.exception.ErrorCode;
 import com.example.commercepaymentsystems.infra.portone.config.PortOneProperties;
@@ -7,7 +8,6 @@ import com.example.commercepaymentsystems.infra.portone.dto.PortOnePaymentRespon
 import com.example.commercepaymentsystems.payments.port.PaymentGateway;
 import com.example.commercepaymentsystems.payments.port.PaymentGatewayResponse;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;

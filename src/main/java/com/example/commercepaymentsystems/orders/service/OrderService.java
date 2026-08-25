@@ -1,4 +1,5 @@
 package com.example.commercepaymentsystems.orders.service;
+
 import com.example.commercepaymentsystems.cart.entity.CartItem;
 import com.example.commercepaymentsystems.cart.service.CartService;
 import com.example.commercepaymentsystems.common.exception.BusinessException;
@@ -17,8 +18,6 @@ import com.example.commercepaymentsystems.orders.entity.OrderStatus;
 import com.example.commercepaymentsystems.orders.repository.OrderItemRepository;
 import com.example.commercepaymentsystems.orders.repository.OrderRepository;
 import com.example.commercepaymentsystems.payments.entity.Payment;
-import com.example.commercepaymentsystems.payments.entity.PaymentStatus;
-import com.example.commercepaymentsystems.payments.repository.PaymentRepository;
 import com.example.commercepaymentsystems.payments.service.PaymentService;
 import com.example.commercepaymentsystems.products.entity.Product;
 import com.example.commercepaymentsystems.products.service.ProductService;
