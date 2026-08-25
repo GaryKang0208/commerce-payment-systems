@@ -1,6 +1,7 @@
 package com.example.commercepaymentsystems.payments.entity;
-
 import com.example.commercepaymentsystems.common.entity.BaseEntity;
+import com.example.commercepaymentsystems.common.exception.BusinessException;
+import com.example.commercepaymentsystems.common.exception.ErrorCode;
 import com.example.commercepaymentsystems.orders.entity.Order;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -8,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @Table(name = "payments")
@@ -20,19 +22,38 @@ public class Payment extends BaseEntity {
 
     @Column(nullable = false)
     Long finalPrice;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     PaymentStatus status;
+
     LocalDateTime paidAt;
+
+    @Column(nullable = false)
+    String portoneId;
+
+    Long pointUsed;
+
+    Long pgAmount;
+
+    Long savedPoints;
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false, unique = true)
     Order order;
 
-    public Payment(Long finalPrice, PaymentStatus status, Order order) {
+    public Payment(Long finalPrice, PaymentStatus status, Order order, Long pointUsed) {
         this.finalPrice = finalPrice;
         this.status = status;
         this.order = order;
+        this.pointUsed = pointUsed;
+        this.portoneId = UUID.randomUUID().toString();
+        this.pgAmount = this.finalPrice - this.pointUsed;
+        this.savedPoints = this.pgAmount / 100;
+    }
+
+    public static Payment create(Long finalPrice, PaymentStatus status, Order order, Long pointUsed) {
+        return new Payment(finalPrice, status, order, pointUsed);
     }
 
     public void markAsPaid() {
@@ -48,11 +69,14 @@ public class Payment extends BaseEntity {
         changeStatus(PaymentStatus.CANCELLED);
     }
 
+    public void markAsPartCancelled() {
+        changeStatus(PaymentStatus.PART_CANCELLED);
+    }
+
     private void changeStatus(PaymentStatus nextStatus) {
         if (!this.status.canTransitTo(nextStatus)) {
-            throw new RuntimeException("유효하지 않은 상태 변경");
+            throw new BusinessException(ErrorCode.INVALID_PAYMENT_STATUS);
         }
-
         this.status = nextStatus;
     }
 }

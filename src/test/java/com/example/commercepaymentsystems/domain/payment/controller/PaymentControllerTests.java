@@ -1,7 +1,7 @@
 package com.example.commercepaymentsystems.domain.payment.controller;
 
-//import com.example.commercepaymentsystems.common.config.JpaAuditingConfig;
-
+import com.example.commercepaymentsystems.common.config.SecurityConfig;
+import com.example.commercepaymentsystems.common.jwt.filter.JwtAuthenticationFilter;
 import com.example.commercepaymentsystems.orders.entity.OrderStatus;
 import com.example.commercepaymentsystems.payments.controller.PaymentController;
 import com.example.commercepaymentsystems.payments.dto.PaymentConfirmRequest;
@@ -12,11 +12,15 @@ import com.example.commercepaymentsystems.payments.facade.PaymentFacade;
 import com.example.commercepaymentsystems.payments.service.PaymentCommandService;
 import com.example.commercepaymentsystems.payments.service.PaymentService;
 import com.github.dockerjava.zerodep.shaded.org.apache.hc.core5.http.ContentType;
-import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.test.context.support.WithMockUser;
@@ -36,7 +40,13 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest(controllers = PaymentController.class)
+@WebMvcTest(
+        controllers = PaymentController.class,
+        excludeFilters = @ComponentScan.Filter(
+                type = FilterType.ASSIGNABLE_TYPE,
+                classes = {SecurityConfig.class, JwtAuthenticationFilter.class}
+        )
+)
 public class PaymentControllerTests {
     @Autowired
     private MockMvc mockMvc;
@@ -80,8 +90,8 @@ public class PaymentControllerTests {
         //when&then
         mockMvc.perform(get("/api/payments/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.totalPrice").value(10000L))
-                .andExpect(jsonPath("$.status").value(PaymentStatus.IN_PROGRESS.name()));
+                .andExpect(jsonPath("$.data.totalPrice").value(10000L))
+                .andExpect(jsonPath("$.data.status").value(PaymentStatus.IN_PROGRESS.name()));
     }
 
     @Test
@@ -109,9 +119,9 @@ public class PaymentControllerTests {
                         .contentType(String.valueOf(ContentType.APPLICATION_JSON))
                         .content(mapper.writeValueAsString(request)))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.amount").value(10000L))
-                .andExpect(jsonPath("$.paymentStatus").value(PaymentStatus.PAID.name()))
-                .andExpect(jsonPath("$.orderStatus").value(OrderStatus.CONFIRMED.name()));
+                .andExpect(jsonPath("$.data.amount").value(10000L))
+                .andExpect(jsonPath("$.data.paymentStatus").value(PaymentStatus.PAID.name()))
+                .andExpect(jsonPath("$.data.orderStatus").value(OrderStatus.CONFIRMED.name()));
     }
 
     @Test

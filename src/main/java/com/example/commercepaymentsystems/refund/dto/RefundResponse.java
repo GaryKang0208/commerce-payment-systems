@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.refund.dto;
-
 public record RefundResponse(
         Long paymentId,
         Long orderId,
@@ -8,4 +7,5 @@ public record RefundResponse(
         Long refundAmount,
         String refundStatus,
         String message
-) { }
+) {
+}

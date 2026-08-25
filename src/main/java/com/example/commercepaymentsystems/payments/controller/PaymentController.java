@@ -1,6 +1,6 @@
 package com.example.commercepaymentsystems.payments.controller;
-
 import com.example.commercepaymentsystems.common.ApiResponse;
+import com.example.commercepaymentsystems.payments.dto.PaymentCancelRequest;
 import com.example.commercepaymentsystems.payments.dto.PaymentConfirmRequest;
 import com.example.commercepaymentsystems.payments.facade.PaymentFacade;
 import com.example.commercepaymentsystems.payments.service.PaymentService;
@@ -30,5 +30,14 @@ public class PaymentController {
             @Valid @RequestBody PaymentConfirmRequest confirmRequest
     ) {
         return ResponseEntity.ok(ApiResponse.ok(paymentFacade.paymentConfirm(customerId, confirmRequest)));
+    }
+
+    @PostMapping("/{id}/cancel")
+    public ResponseEntity<ApiResponse<?>> cancelPayment(
+            @AuthenticationPrincipal Long customerId,
+            @PathVariable Long id,
+            @Valid @RequestBody PaymentCancelRequest cancelRequest
+    ) {
+        return ResponseEntity.ok(ApiResponse.ok(paymentFacade.paymentCancel(customerId, id, cancelRequest)));
     }
 }

@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>구독 결제창 테스트 : SPARTA SHOP</title>
+  <script src="https://cdn.portone.io/v2/browser-sdk.js"></script>
+  <script src="config.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --primary:   #FF6B35;
+      --accent:    #1a1a2e;
+      --success:   #00c471;
+      --danger:    #ff4757;
+      --gold:      #f5a623;
+      --text:      #1a1a1a;
+      --text-sub:  #666;
+      --border:    #e0e0e0;
+      --bg:        #f4f5f7;
+      --card:      #ffffff;
+      --radius:    10px;
+      --mono:      "SFMono-Regular", Consolas, "Liberation Mono", Menlo, monospace;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Apple SD Gothic Neo",
+                   "Pretendard", "Noto Sans KR", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* ── 헤더 ── */
+    header {
+      background: var(--accent);
+      padding: 0 24px;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .logo {
+      font-size: 17px;
+      font-weight: 900;
+      color: #fff;
+      letter-spacing: -0.3px;
+      text-decoration: none;
+    }
+    .logo span { color: var(--primary); }
+    .page-badge {
+      background: rgba(245,166,35,.2);
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 20px;
+      border: 1px solid rgba(245,166,35,.35);
+    }
+    .header-link {
+      margin-left: auto;
+      color: rgba(255,255,255,.55);
+      font-size: 12px;
+      text-decoration: none;
+    }
+    .header-link:hover { color: #fff; }
+
+    /* ── 레이아웃 ── */
+    .container {
+      max-width: 640px;
+      margin: 32px auto;
+      padding: 0 16px 64px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* ── 안내 배너 ── */
+    .guide-banner {
+      background: #fffbe6;
+      border: 1px solid #ffe58f;
+      border-radius: var(--radius);
+      padding: 14px 16px;
+      font-size: 13px;
+      color: #7d5a00;
+      line-height: 1.7;
+    }
+    .guide-banner strong { color: #5a3e00; }
+    .guide-banner ol { margin: 6px 0 0 16px; }
+
+    /* ── 카드 ── */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .card-head {
+      background: #f8f9fa;
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .step-num {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: var(--gold);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 800;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .card-sub {
+      font-size: 11px;
+      color: var(--text-sub);
+      margin-left: auto;
+    }
+    .card-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    /* ── 폼 필드 ── */
+    .field { display: flex; flex-direction: column; gap: 4px; }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+    label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-sub);
+    }
+    label .required { color: var(--primary); margin-left: 2px; }
+    input[type="text"],
+    input[type="email"],
+    input[type="tel"] {
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-family: inherit;
+      outline: none;
+      transition: border-color .15s;
+      width: 100%;
+    }
+    input:focus { border-color: var(--gold); }
+    .field-hint { font-size: 11px; color: #aaa; }
+
+    /* ── 빌링키 발급 버튼 ── */
+    #issueBtn {
+      width: 100%;
+      background: var(--gold);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius);
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      letter-spacing: -0.2px;
+      transition: background .15s, opacity .15s;
+    }
+    #issueBtn:hover  { background: #e0911a; }
+    #issueBtn:disabled { opacity: .55; cursor: not-allowed; }
+
+    /* ── 결과 패널 ── */
+    #resultPanel { display: none; }
+
+    .result-head-success {
+      background: #e6faf2;
+      border-bottom: 1px solid #b2ecd5;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 13px;
+      color: #007a47;
+    }
+    .result-head-error {
+      background: #fff0f0;
+      border-bottom: 1px solid #ffc5c5;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      font-size: 13px;
+      color: #c0392b;
+    }
+
+    /* ── 빌링키 강조 박스 ── */
+    .billing-key-box {
+      margin: 14px 16px 0;
+      background: #fffbe6;
+      border: 2px solid var(--gold);
+      border-radius: 8px;
+      padding: 14px;
+    }
+    .billing-key-label {
+      font-size: 11px;
+      font-weight: 700;
+      color: #a06b00;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .billing-key-value {
+      font-family: var(--mono);
+      font-size: 13px;
+      font-weight: 600;
+      color: #5a3e00;
+      word-break: break-all;
+      margin-bottom: 10px;
+      line-height: 1.6;
+    }
+    .copy-btn {
+      background: var(--accent);
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      padding: 6px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .copy-btn:hover  { background: #2d2d4e; }
+    .copy-btn.copied { background: var(--success); }
+
+    /* ── 보조 결과 필드 ── */
+    .key-field {
+      background: #f8f9fa;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 14px;
+      margin: 10px 16px 0;
+    }
+    .key-field-label { font-size: 11px; font-weight: 700; color: var(--text-sub); margin-bottom: 4px; }
+    .key-field-row { display: flex; align-items: center; gap: 8px; }
+    .key-value {
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text);
+      flex: 1;
+      word-break: break-all;
+    }
+
+    /* ── 다음 단계 힌트 ── */
+    .next-hint {
+      margin: 10px 16px 14px;
+      background: #f0f4ff;
+      border: 1px solid #c7d7ff;
+      border-radius: 7px;
+      padding: 10px 12px;
+      font-size: 12px;
+      color: #3450a3;
+      line-height: 1.7;
+    }
+    .next-hint strong { font-weight: 700; }
+
+    /* ── JSON 영역 ── */
+    .json-section { padding: 0 16px 16px; }
+    .json-toggle {
+      background: none;
+      border: none;
+      color: var(--text-sub);
+      font-size: 11px;
+      cursor: pointer;
+      padding: 4px 0;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 10px;
+    }
+    .json-toggle:hover { color: var(--text); }
+    .json-box {
+      background: #1a1a2e;
+      color: #a8d8a8;
+      font-family: var(--mono);
+      font-size: 12px;
+      border-radius: 7px;
+      padding: 12px 14px;
+      overflow-x: auto;
+      white-space: pre;
+      margin-top: 6px;
+      line-height: 1.7;
+      display: none;
+    }
+    .json-box.open { display: block; }
+  </style>
+</head>
+<body>
+
+<header>
+  <a class="logo" href="/"><span>S</span>PARTA SHOP</a>
+  <span class="page-badge">구독 결제창 테스트</span>
+  <a class="header-link" href="/index.html">← 일반 결제 테스트</a>
+</header>
+
+<div class="container">
+
+  <!-- 안내 배너 -->
+  <div class="guide-banner">
+    <strong>사용 순서</strong>
+    <ol>
+      <li>Postman으로 <strong>로그인 API</strong>를 호출해 JWT 토큰을 발급받습니다.</li>
+      <li>아래 결제자 정보를 입력하고 <strong>카드 등록 (빌링키 발급)</strong>을 클릭합니다.</li>
+      <li>PortOne 빌링키 발급창에서 카드 정보를 입력합니다. <br>
+          (토스페이먼츠 테스트 인증 번호: <strong>000000</strong>)</li>
+      <li>발급 완료 후 화면에 표시되는 <strong>billingKey</strong>를 복사합니다.</li>
+      <li>Postman으로 <strong>구독 생성 API</strong>에 billingKey(+ planId 등)를 포함해 요청합니다.<br>
+          <span style="font-size:12px;color:#a07020">※ 이 단계에서 실제 구독이 생성·활성화됩니다.</span></li>
+    </ol>
+  </div>
+
+  <!-- STEP 1 : 결제자 정보 -->
+  <div class="card">
+    <div class="card-head">
+      <div class="step-num">1</div>
+      <span class="card-title">결제자 정보</span>
+      <span class="card-sub">기본값 그대로 사용 가능</span>
+    </div>
+    <div class="card-body">
+      <div class="field-row">
+        <div class="field">
+          <label>이름 <span class="required">*</span></label>
+          <input type="text" id="payerName" value="홍길동" />
+        </div>
+        <div class="field">
+          <label>이메일 <span class="required">*</span></label>
+          <input type="email" id="payerEmail" value="test@example.com" />
+        </div>
+        <div class="field">
+          <label>연락처 <span class="required">*</span></label>
+          <input type="tel" id="payerPhone" value="01012345678" />
+        </div>
+      </div>
+      <div class="field">
+        <label>발급 이름 (빌링키 식별용)</label>
+        <input type="text" id="issueName" value="스파르타 멤버십" />
+        <span class="field-hint">PortOne 콘솔 빌링키 목록에서 이 이름으로 표시됩니다.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- 발급 버튼 -->
+  <button id="issueBtn" onclick="issueBillingKey()">카드 등록 (빌링키 발급) →</button>
+
+  <!-- 결과 패널 -->
+  <div class="card" id="resultPanel">
+
+    <!-- 성공 -->
+    <div id="successResult" style="display:none">
+      <div class="result-head-success">
+        ✅ 빌링키 발급 완료 : PortOne 콜백을 받았습니다
+      </div>
+
+      <!-- billingKey 강조 -->
+      <div class="billing-key-box">
+        <div class="billing-key-label">billingKey : 구독 생성 API에 사용</div>
+        <div class="billing-key-value" id="resultBillingKey">—</div>
+        <button class="copy-btn" onclick="copyValue('resultBillingKey', this)">billingKey 복사</button>
+      </div>
+
+      <!-- issueId -->
+      <div class="key-field">
+        <div class="key-field-label">issueId</div>
+        <div class="key-field-row">
+          <span class="key-value" id="resultIssueId">—</span>
+          <button class="copy-btn" onclick="copyValue('resultIssueId', this)" style="font-size:11px;padding:4px 8px;">복사</button>
+        </div>
+      </div>
+
+      <div class="next-hint">
+        <strong>다음 단계</strong> : 위 <code>billingKey</code>를 복사한 뒤,
+        Postman으로 <strong>구독 생성 API</strong>를 호출하세요.<br>
+        (예: <code>POST /api/subscriptions</code> : 팀이 설계한 경로 사용)
+      </div>
+
+      <div class="json-section">
+        <button class="json-toggle" onclick="toggleJson(this, 'successJson')">
+          ▶ PortOne 응답 전체 보기
+        </button>
+        <pre class="json-box" id="successJson"></pre>
+      </div>
+    </div>
+
+    <!-- 에러 -->
+    <div id="errorResult" style="display:none">
+      <div class="result-head-error">
+        ❌ 빌링키 발급 실패 또는 취소
+      </div>
+      <div class="json-section">
+        <button class="json-toggle" onclick="toggleJson(this, 'errorJson')" style="margin-top:10px">
+          ▶ 오류 응답 보기
+        </button>
+        <pre class="json-box" id="errorJson"></pre>
+      </div>
+    </div>
+
+  </div><!-- /resultPanel -->
+
+</div><!-- /container -->
+
+<script>
+  /* ── 빌링키 발급 ── */
+  async function issueBillingKey() {
+    const fullName    = document.getElementById("payerName").value.trim()  || "홍길동";
+    const email       = document.getElementById("payerEmail").value.trim() || "test@example.com";
+    const phoneNumber = document.getElementById("payerPhone").value.trim() || "01012345678";
+    const issueName   = document.getElementById("issueName").value.trim()  || "스파르타 멤버십";
+
+    const btn = document.getElementById("issueBtn");
+    btn.disabled = true;
+    btn.textContent = "카드 등록창 여는 중…";
+    hideResult();
+
+    try {
+      const response = await PortOne.requestIssueBillingKey({
+        storeId:          CONFIG.storeId,
+        channelKey:       CONFIG.subscriptionChannelKey,
+        billingKeyMethod: "CARD",
+        issueId:          "BILLING-" + Date.now(),
+        issueName,
+        customer: { fullName, email, phoneNumber },
+      });
+
+      showSuccess(response);
+    } catch (e) {
+      showError(e);
+    } finally {
+      btn.disabled = false;
+      btn.textContent = "카드 등록 (빌링키 발급) →";
+    }
+  }
+
+  /* ── 성공 표시 ── */
+  function showSuccess(response) {
+    document.getElementById("resultPanel").style.display = "block";
+    document.getElementById("successResult").style.display = "block";
+    document.getElementById("errorResult").style.display = "none";
+
+    document.getElementById("resultBillingKey").textContent =
+      response.billingKey || "(billingKey 없음)";
+    document.getElementById("resultIssueId").textContent =
+      response.issueId || "(issueId 없음)";
+    document.getElementById("successJson").textContent =
+      JSON.stringify(response, null, 2);
+  }
+
+  /* ── 실패/취소 표시 ── */
+  function showError(e) {
+    document.getElementById("resultPanel").style.display = "block";
+    document.getElementById("successResult").style.display = "none";
+    document.getElementById("errorResult").style.display = "block";
+
+    const payload = e && typeof e === "object"
+      ? e
+      : { message: String(e) };
+    document.getElementById("errorJson").textContent =
+      JSON.stringify(payload, null, 2);
+    document.getElementById("errorJson").classList.add("open");
+
+    const toggle = document.querySelector("#errorResult .json-toggle");
+    if (toggle) toggle.textContent = "▼ 오류 응답 보기";
+  }
+
+  /* ── 결과 초기화 ── */
+  function hideResult() {
+    document.getElementById("resultPanel").style.display = "none";
+    document.getElementById("successResult").style.display = "none";
+    document.getElementById("errorResult").style.display = "none";
+    document.querySelectorAll(".json-box").forEach(el => el.classList.remove("open"));
+  }
+
+  /* ── JSON 토글 ── */
+  function toggleJson(btn, targetId) {
+    const box = document.getElementById(targetId);
+    const open = box.classList.toggle("open");
+    btn.textContent = (open ? "▼ " : "▶ ") + btn.textContent.slice(2);
+  }
+
+  /* ── 복사 ── */
+  function copyValue(id, btn) {
+    const text = document.getElementById(id).textContent;
+    navigator.clipboard.writeText(text).then(() => {
+      const original = btn.textContent;
+      btn.textContent = "복사됨 ✓";
+      btn.classList.add("copied");
+      setTimeout(() => {
+        btn.textContent = original;
+        btn.classList.remove("copied");
+      }, 1800);
+    });
+  }
+</script>
+</body>
+</html>

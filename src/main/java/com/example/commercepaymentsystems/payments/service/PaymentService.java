@@ -1,5 +1,6 @@
 package com.example.commercepaymentsystems.payments.service;
-
+import com.example.commercepaymentsystems.common.exception.BusinessException;
+import com.example.commercepaymentsystems.common.exception.ErrorCode;
 import com.example.commercepaymentsystems.orders.entity.Order;
 import com.example.commercepaymentsystems.payments.dto.PaymentResponse;
 import com.example.commercepaymentsystems.payments.entity.Payment;
@@ -17,14 +18,14 @@ public class PaymentService {
 
     public PaymentResponse getPayment(Long customerId, Long paymentId) {
         Payment payment = paymentRepository.findByIdAndCustomerId(paymentId, customerId)
-                .orElseThrow(() -> new RuntimeException("Payment not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_NOT_FOUND));
 
         return toResponse(payment);
     }
 
     public Payment findByOrderIdWithOrder(Long orderId) {
         return paymentRepository.findByOrderIdWithOrder(orderId)
-                .orElseThrow(() -> new RuntimeException("Payment not found"));
+                .orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_NOT_FOUND));
     }
 
     @Transactional
@@ -38,14 +39,24 @@ public class PaymentService {
     }
 
     @Transactional
-    public void createPayment(Order order, Long totalPrice) {
-        Payment payment = new Payment(
+    public void cancelPayment(Payment payment) {
+        payment.markAsCancelled();
+    }
+
+    @Transactional
+    public void createPayment(Order order, Long totalPrice, Long pointUsed) {
+        Payment payment = Payment.create(
                 totalPrice,
                 PaymentStatus.IN_PROGRESS,
-                order
+                order,
+                pointUsed
         );
-
         paymentRepository.save(payment);
+    }
+
+    public Payment findByPortOneId(String portonePaymentId) {
+        return paymentRepository.findByPortoneId(portonePaymentId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_NOT_FOUND));
     }
 
     private PaymentResponse toResponse(Payment payment) {
@@ -54,5 +65,10 @@ public class PaymentService {
                 payment.getStatus().name(),
                 payment.getPaidAt()
         );
+    }
+
+    public Payment findByIdWithOrder(Long paymentId) {
+        return paymentRepository.findByIdWithOrder(paymentId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_NOT_FOUND));
     }
 }
