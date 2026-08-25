@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.refund.facade;
-
 import com.example.commercepaymentsystems.payments.entity.Payment;
 import com.example.commercepaymentsystems.payments.port.PaymentGateway;
 import com.example.commercepaymentsystems.payments.service.PaymentService;
@@ -19,7 +18,6 @@ public class RefundFacade {
     public RefundResponse refund(Long paymentId, Long customerId, RefundRequest refundRequest) {
         RefundResponse response = refundService.refund(paymentId, customerId, refundRequest);
         Payment payment = paymentService.findByIdWithOrder(paymentId);
-
         paymentGateway.cancelPayment(payment.getPortoneId(), response.refundAmount(), refundRequest.reason());
 
         return response;

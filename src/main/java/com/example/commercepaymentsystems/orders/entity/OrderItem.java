@@ -12,7 +12,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class OrderItem extends BaseEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -41,11 +40,8 @@ public class OrderItem extends BaseEntity {
     ) {
         this.order = order;
         this.product = product;
-
-        // 주문 생성 시점의 상품 정보를 스냅샷으로 저장
         this.productName = product.getName();
         this.productPrice = product.getPrice();
-
         this.quantity = quantity;
     }
 }

@@ -8,5 +8,4 @@ public record PaymentCancelResponse(
         String orderStatus,
         String message
 ) {
-
 }

@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.point.controller;
-
 import com.example.commercepaymentsystems.common.ApiResponse;
 import com.example.commercepaymentsystems.point.dto.PointBalanceResponse;
 import com.example.commercepaymentsystems.point.dto.PointTransactionResponse;
@@ -17,7 +16,6 @@ import java.util.List;
 @RequiredArgsConstructor
 @RequestMapping("/api/points")
 public class PointController {
-
     private final PointService pointService;
 
     @GetMapping("/me")

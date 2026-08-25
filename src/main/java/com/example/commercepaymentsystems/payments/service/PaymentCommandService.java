@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.payments.service;
-
 import com.example.commercepaymentsystems.cart.service.CartService;
 import com.example.commercepaymentsystems.customers.entity.Customers;
 import com.example.commercepaymentsystems.customers.service.customers.CustomersService;
@@ -25,7 +24,7 @@ public class PaymentCommandService {
     private final OrderService orderService;
     private final ProductService productService;
     private final CartService cartService;
-    private final CustomersService  customersService;
+    private final CustomersService customersService;
     private final PointService pointService;
 
     @Transactional
@@ -35,10 +34,7 @@ public class PaymentCommandService {
 
         paymentService.failPayment(payment);
         orderService.cancelOrder(order);
-
-        //포인트 계산 후 포인트 복구
         restorePoints(payment.getOrder().getCustomer().getId(), payment);
-
         restoreStock(order);
     }
 
@@ -53,7 +49,6 @@ public class PaymentCommandService {
         orderService.confirmOrder(order);
         pointService.use(customer, payment, payment.getPointUsed());
         pointService.earn(customer, payment, payment.getSavedPoints());
-
         cartService.removeAllItems(order.getCustomer().getId());
 
         return new PaymentConfirmResponse(
@@ -73,7 +68,6 @@ public class PaymentCommandService {
 
         paymentService.cancelPayment(payment);
         orderService.cancelOrder(order);
-
         restorePoints(customerId, payment);
 
         return new PaymentCancelResponse(
@@ -88,7 +82,6 @@ public class PaymentCommandService {
 
     private void restoreStock(Order order) {
         List<OrderItem> items = orderService.getOrderItems(order.getId());
-
         for (OrderItem item : items) {
             Product product = productService.findEntityById(item.getProduct().getId());
             product.restoreStock(item.getQuantity());
@@ -97,8 +90,6 @@ public class PaymentCommandService {
 
     private void restorePoints(Long customerId, Payment payment) {
         Customers customer = customersService.findById(customerId);
-
-        //복구할 포인트 계산
         long pointsToRestore = payment.getPointUsed() - payment.getSavedPoints();
         customer.addPoint(pointsToRestore);
         pointService.restoreUse(customer, payment, pointsToRestore);

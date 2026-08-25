@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.infra.portone.controller;
-
 import com.example.commercepaymentsystems.common.ApiResponse;
 import com.example.commercepaymentsystems.infra.portone.config.PortOneProperties;
 import com.example.commercepaymentsystems.infra.portone.dto.PortOneConfigResponse;
@@ -16,9 +15,11 @@ public class PortOneConfigController {
     @GetMapping("/api/portone-info")
     public ResponseEntity<ApiResponse<?>> getPortOneInfo() {
         return ResponseEntity.ok(ApiResponse.ok(
-                new PortOneConfigResponse(
-                        portOneProperties.getStoreId(),
-                        portOneProperties.getChannelKey()
-        )));
+                        new PortOneConfigResponse(
+                                portOneProperties.getStoreId(),
+                                portOneProperties.getChannelKey()
+                        )
+                )
+        );
     }
 }

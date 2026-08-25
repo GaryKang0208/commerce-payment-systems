@@ -8,8 +8,9 @@ import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
-public interface CustomersRepository extends JpaRepository<Customers , Long> {
+public interface CustomersRepository extends JpaRepository<Customers, Long> {
     Optional<Customers> findByEmail(String email);
+
     boolean existsByEmail(String email);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)

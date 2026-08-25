@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.infra.portone.client;
-
 import com.example.commercepaymentsystems.common.exception.BusinessException;
 import com.example.commercepaymentsystems.common.exception.ErrorCode;
 import com.example.commercepaymentsystems.infra.portone.config.PortOneProperties;
@@ -8,6 +7,7 @@ import com.example.commercepaymentsystems.infra.portone.dto.PortOnePaymentRespon
 import com.example.commercepaymentsystems.payments.port.PaymentGateway;
 import com.example.commercepaymentsystems.payments.port.PaymentGatewayResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.web.client.ResourceAccessException;
@@ -26,17 +26,37 @@ public class PortOneClient implements PaymentGateway {
     @Override
     public PaymentGatewayResponse getPayment(String paymentId) {
         //logging
-        log.info("PortOne 결제 조회: {}", paymentId);
+//        log.info("PortOne 결제 조회: {}", paymentId);
+        log.info(
+                "PortOne 결제 조회: paymentId={}, storeId={}",
+                paymentId,
+                portOneProperties.getStoreId()
+        );
 
-        PortOnePaymentResponse response = portOneRestClient.get()
-                .uri(uriBuilder -> uriBuilder
-                        .path("/payments/{paymentId}")
-                        .queryParam("storeId", portOneProperties.getStoreId())
-                        .build(paymentId))
-                .retrieve()
-                .body(PortOnePaymentResponse.class);
+//        PortOnePaymentResponse response = portOneRestClient.get()
+//                .uri(uriBuilder -> uriBuilder
+//                        .path("/payments/{paymentId}")
+//                        .queryParam("storeId", portOneProperties.getStoreId())
+//                        .build(paymentId))
+//                .retrieve()
+//                .body(PortOnePaymentResponse.class);
 
-        if(response == null) {
+        PortOnePaymentResponse response = null;
+        try {
+            response = portOneRestClient.get()
+                    .uri(uriBuilder -> uriBuilder
+                            .path("/payments/{paymentId}")
+                            .queryParam("storeId", portOneProperties.getStoreId())
+                            .build(paymentId))
+                    .retrieve()
+                    .body(PortOnePaymentResponse.class);
+        } catch (Exception e) {
+            System.out.println(e.getMessage());
+        }
+
+        System.out.println("response 로그 = " + response);
+
+        if (response == null) { //오류가 나도 null이 아님
             throw new BusinessException(ErrorCode.PG_FAILURE);
         }
 
@@ -48,7 +68,7 @@ public class PortOneClient implements PaymentGateway {
     }
 
     @Override
-    public void cancelPayment(String paymentId, Long amount,  String reason) {
+    public void cancelPayment(String paymentId, Long amount, String reason) {
         String idempotencyKey = UUID.randomUUID().toString();
         log.info("PortOne 결제 취소 요청: PortOnePaymentId={}, reason={}, idempotencyKey={}", paymentId, reason, idempotencyKey);
 

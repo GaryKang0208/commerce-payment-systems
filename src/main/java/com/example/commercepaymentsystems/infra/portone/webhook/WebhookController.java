@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.infra.portone.webhook;
-
 import com.example.commercepaymentsystems.common.ApiResponse;
 import io.portone.sdk.server.errors.WebhookVerificationException;
 import io.portone.sdk.server.webhook.Webhook;
@@ -28,13 +27,14 @@ public class WebhookController {
         try {
             webhook = portOneWebhookVerifier.verify(body, webhookId, webhookSignature, webhookTimestamp);
         } catch (WebhookVerificationException e) {
-            log.warn("[Webhook] verification failed id={}, reason={}",  webhookId, e.getMessage());
+            log.warn("[Webhook] verification failed id={}, reason={}", webhookId, e.getMessage());
 
             //실패해도 웹훅을 더 이상 보내지 않도록 ok 응답
             return ResponseEntity.ok(ApiResponse.ok());
         }
 
         webhookHandler.handle(webhookId, webhook, body);
+
         return ResponseEntity.ok(ApiResponse.ok());
     }
 }

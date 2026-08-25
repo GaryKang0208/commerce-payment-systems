@@ -20,16 +20,19 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/signup")
-    public ResponseEntity<ApiResponse<Void>> signUp(@Valid @RequestBody SignupRequest request
+    public ResponseEntity<ApiResponse<Void>> signUp(
+            @Valid @RequestBody SignupRequest request
     ) {
         authService.signUp(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("회원가입이 완료되었습니다", null));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("회원가입이 완료되었습니다", null)
+        );
     }
 
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<TokenResponse>> login(@Valid @RequestBody LoginRequest request) {
-        TokenResponse token =
-                authService.login(request);
+    public ResponseEntity<ApiResponse<TokenResponse>> login(
+            @Valid @RequestBody LoginRequest request
+    ) {
+        TokenResponse token = authService.login(request);
         return ResponseEntity.ok(ApiResponse.ok("로그인에 성공했습니다", token)
         );
     }

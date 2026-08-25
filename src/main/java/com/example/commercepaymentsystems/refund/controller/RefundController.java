@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.refund.controller;
-
 import com.example.commercepaymentsystems.common.ApiResponse;
 import com.example.commercepaymentsystems.refund.dto.RefundRequest;
 import com.example.commercepaymentsystems.refund.dto.RefundResponse;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 @RequestMapping("/api/payments")
 public class RefundController {
-
     private final RefundFacade refundFacade;
 
     @PostMapping("/{id}/refund")
@@ -26,8 +24,6 @@ public class RefundController {
             @PathVariable("id") Long paymentId,
             @RequestBody RefundRequest request
     ) {
-        return ResponseEntity.ok(
-                ApiResponse.ok(refundFacade.refund(paymentId, customerId, request))
-        );
+        return ResponseEntity.ok(ApiResponse.ok(refundFacade.refund(paymentId, customerId, request)));
     }
 }

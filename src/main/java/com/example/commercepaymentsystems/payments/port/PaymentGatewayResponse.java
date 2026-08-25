@@ -1,6 +1,6 @@
 package com.example.commercepaymentsystems.payments.port;
 
-public record PaymentGatewayResponse (
+public record PaymentGatewayResponse(
         String id,
         String status,
         long totalAmount

@@ -27,28 +27,28 @@ public class CartItem extends com.example.commercepaymentsystems.common.entity.B
     @Column(nullable = false)
     private int quantity;
 
-    public CartItem(Cart cart, Long productId, int quantity){
+    public CartItem(Cart cart, Long productId, int quantity) {
         this.cart = cart;
         this.productId = productId;
-        if (quantity < 1){
+        if (quantity < 1) {
             throw new BusinessException(ErrorCode.INVALID_QUANTITY);
         }
         this.quantity = quantity;
     }
 
-    public Long getCartId(){
+    public Long getCartId() {
         return cart.getId();
     }
 
-    public void addQuantity(int quantity){
-        if(quantity<1){
+    public void addQuantity(int quantity) {
+        if (quantity < 1) {
             throw new BusinessException(ErrorCode.INVALID_QUANTITY);
         }
         this.quantity += quantity;
     }
 
-    public void changeQuantity(int quantity){
-        if(quantity<1){
+    public void changeQuantity(int quantity) {
+        if (quantity < 1) {
             throw new BusinessException(ErrorCode.INVALID_QUANTITY);
         }
         this.quantity = quantity;

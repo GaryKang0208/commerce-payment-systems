@@ -22,6 +22,7 @@ public class CustomersService {
     public ProfileResponse getProfile(Long customerId) {
         Customers customer = repository.findById(customerId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CUSTOMER_NOT_FOUND));
+
         return new ProfileResponse(
                 customer.getId(),
                 customer.getEmail(),
@@ -31,15 +32,14 @@ public class CustomersService {
         );
     }
 
-    public void updateProfile(Long customerId,
-            UpdateProfileRequest request
-    ) {
+    public void updateProfile(Long customerId, UpdateProfileRequest request) {
         Customers customer = repository.findById(customerId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CUSTOMER_NOT_FOUND));
 
         repository.findByEmail(request.email()).ifPresent(existingCustomer -> {
-                    if (!existingCustomer.getId().equals(customerId)) {
-                        throw new BusinessException(ErrorCode.DUPLICATE_EMAIL);}
+            if (!existingCustomer.getId().equals(customerId)) {
+                throw new BusinessException(ErrorCode.DUPLICATE_EMAIL);
+            }
         });
         customer.updateInfo(
                 request.email(),
@@ -48,14 +48,10 @@ public class CustomersService {
         );
     }
 
-    public void changePassword(
-            Long customerId,
-            ChangePasswordRequest request
-    ) {
+    public void changePassword(Long customerId, ChangePasswordRequest request) {
         Customers customer = repository.findById(customerId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.CUSTOMER_NOT_FOUND));
 
-        // 현재 비밀번호 확인
         if (!passwordEncoder.matches(request.currentPassword(), customer.getPassword())) {
             throw new BusinessException(ErrorCode.INVALID_CURRENT_PASSWORD);
         }

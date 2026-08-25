@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.payments.entity;
-
 import com.example.commercepaymentsystems.common.entity.BaseEntity;
 import com.example.commercepaymentsystems.common.exception.BusinessException;
 import com.example.commercepaymentsystems.common.exception.ErrorCode;
@@ -27,6 +26,7 @@ public class Payment extends BaseEntity {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     PaymentStatus status;
+
     LocalDateTime paidAt;
 
     @Column(nullable = false)
@@ -42,7 +42,7 @@ public class Payment extends BaseEntity {
     @JoinColumn(name = "order_id", nullable = false, unique = true)
     Order order;
 
-    public Payment (Long finalPrice, PaymentStatus status, Order order, Long pointUsed) {
+    public Payment(Long finalPrice, PaymentStatus status, Order order, Long pointUsed) {
         this.finalPrice = finalPrice;
         this.status = status;
         this.order = order;
@@ -77,7 +77,6 @@ public class Payment extends BaseEntity {
         if (!this.status.canTransitTo(nextStatus)) {
             throw new BusinessException(ErrorCode.INVALID_PAYMENT_STATUS);
         }
-
         this.status = nextStatus;
     }
 }

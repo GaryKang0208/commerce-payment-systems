@@ -7,4 +7,5 @@ public record AddCartResponse(
         int price,
         int totalAmount,
         Long cartItemId
-) {}
+) {
+}

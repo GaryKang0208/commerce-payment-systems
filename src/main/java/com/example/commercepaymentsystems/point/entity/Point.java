@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.point.entity;
-
 import com.example.commercepaymentsystems.common.entity.BaseEntity;
 import com.example.commercepaymentsystems.customers.entity.Customers;
 import com.example.commercepaymentsystems.payments.entity.Payment;
@@ -18,22 +17,22 @@ public class Point extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "customer_id",nullable = false)
+    @JoinColumn(name = "customer_id", nullable = false)
     private Customers customers;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "payment_id",nullable = false)
+    @JoinColumn(name = "payment_id", nullable = false)
     private Payment payment;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = false,length = 20)
+    @Column(nullable = false, length = 20)
     private PointTransactionType type;
 
     @Column(nullable = false)
     private Long amount;
 
-    public Point(Customers customers, Payment payment, PointTransactionType type, Long amount){
-        this.customers =customers;
+    public Point(Customers customers, Payment payment, PointTransactionType type, Long amount) {
+        this.customers = customers;
         this.payment = payment;
         this.type = type;
         this.amount = amount;

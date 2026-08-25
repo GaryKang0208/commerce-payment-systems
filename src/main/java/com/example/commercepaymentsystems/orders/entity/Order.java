@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.orders.entity;
-
 import com.example.commercepaymentsystems.common.entity.BaseEntity;
 import com.example.commercepaymentsystems.common.exception.BusinessException;
 import com.example.commercepaymentsystems.common.exception.ErrorCode;
@@ -14,7 +13,6 @@ import lombok.NoArgsConstructor;
 @Table(name = "orders")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Order extends BaseEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -56,12 +54,10 @@ public class Order extends BaseEntity {
         if (!this.orderStatus.canTransitTo(newStatus)) {
             throw new BusinessException(ErrorCode.INVALID_ORDER_STATUS);
         }
-
         this.orderStatus = newStatus;
     }
 
     public OrderStatus getStatus() {
-         return orderStatus;
+        return orderStatus;
     }
-
 }

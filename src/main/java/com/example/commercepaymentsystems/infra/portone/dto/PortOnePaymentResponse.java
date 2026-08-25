@@ -1,9 +1,8 @@
 package com.example.commercepaymentsystems.infra.portone.dto;
-
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record PortOnePaymentResponse (
+public record PortOnePaymentResponse(
         String id,
         String status,
         PaymentAmount amount

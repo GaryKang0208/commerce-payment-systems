@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.refund.service;
-
 import com.example.commercepaymentsystems.common.exception.BusinessException;
 import com.example.commercepaymentsystems.common.exception.ErrorCode;
 import com.example.commercepaymentsystems.orders.entity.OrderItem;
@@ -28,30 +27,23 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class RefundService {
-
     private final PaymentRepository paymentRepository;
     private final OrderItemRepository orderItemRepository;
     private final RefundRepository refundRepository;
     private final RefundItemRepository refundItemRepository;
-
     private static final Integer ZERO_POINT = 0;
 
-    //부분환불,전체환불 결정하는 로직(request에 item유무로 검증)
     @Transactional
     public RefundResponse refund(
             Long paymentId,
             Long customerId,
             RefundRequest request
     ) {
-        // 결제 조회 + 본인 소유 확인
         Payment payment = paymentRepository.findByIdAndCustomerId(paymentId, customerId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_NOT_FOUND));
-
         Order order = payment.getOrder();
-
         List<OrderItem> orderItems = orderItemRepository.findAllByOrderId(order.getId());
 
-        // items가 없으면 전액 환불 있으면 부분환불
         if (request.items() == null || request.items().isEmpty()) {
             return refundAll(
                     payment,
@@ -69,22 +61,17 @@ public class RefundService {
         }
     }
 
-    //전체환불로직
     private RefundResponse refundAll(
             Payment payment,
             Order order,
             List<OrderItem> orderItems,
             String reason
     ) {
-
         long alreadyRefunded = refundRepository.sumRefundedAmount(payment.getId());
-
         long refundAmount = payment.getFinalPrice() - alreadyRefunded;
-
         if (refundAmount <= 0) {
             throw new BusinessException(ErrorCode.ALREADY_PROCESSED_REFUND);
         }
-
         Refund refund = new Refund(
                 payment,
                 ZERO_POINT,
@@ -92,22 +79,15 @@ public class RefundService {
                 reason,
                 LocalDateTime.now()
         );
-
         refundRepository.save(refund);
 
         for (OrderItem orderItem : orderItems) {
-
-            //환불수량
             int refundedQuantity = refundItemRepository.sumRefundedQuantity(orderItem.getId());
-
-            //잔여수량
             int remainingQuantity = orderItem.getQuantity() - refundedQuantity;
-
-            if (remainingQuantity <= 0) {continue;}
-
-            //수량*제품가격 환불가격 측정
+            if (remainingQuantity <= 0) {
+                continue;
+            }
             long itemRefundAmount = orderItem.getProductPrice() * remainingQuantity;
-
             RefundItem refundItem = new RefundItem(
                     refund,
                     orderItem,
@@ -122,10 +102,7 @@ public class RefundService {
             product.restoreStock(remainingQuantity);
         }
 
-        // Payment 도메인에서 상태 전이 검증
         payment.markAsCancelled();
-
-        // Order 도메인에서 상태 전이 검증
         order.cancel();
 
         return new RefundResponse(
@@ -139,15 +116,12 @@ public class RefundService {
         );
     }
 
-
-    //부분환불로직
     private RefundResponse partialRefund(
             Payment payment,
             Order order,
             List<OrderItem> orderItems,
             RefundRequest request
     ) {
-
         Map<Long, OrderItem> orderItemMap =
                 orderItems.stream()
                         .collect(Collectors.toMap(
@@ -160,26 +134,21 @@ public class RefundService {
         for (RefundItemRequest itemRequest : request.items()) {
 
             OrderItem orderItem = orderItemMap.get(itemRequest.orderItemId());
-
             if (orderItem == null) {
                 throw new BusinessException(ErrorCode.INVALID_REFUND_ITEM);
             }
 
             int alreadyRefunded = refundItemRepository.sumRefundedQuantity(orderItem.getId());
-
             int remainingQuantity = orderItem.getQuantity() - alreadyRefunded;
-
             if (itemRequest.quantity() > remainingQuantity) {
                 throw new BusinessException(ErrorCode.REFUND_QUANTITY_MISMATCH);
             }
 
             long itemRefundAmount = orderItem.getProductPrice() * itemRequest.quantity();
-
             totalRefundAmount += itemRefundAmount;
         }
 
         long alreadyRefundedAmount = refundRepository.sumRefundedAmount(payment.getId());
-
         if (alreadyRefundedAmount + totalRefundAmount > payment.getFinalPrice()) {
             throw new BusinessException(ErrorCode.REFUND_AMOUNT_MISMATCH);
         }
@@ -195,11 +164,8 @@ public class RefundService {
         refundRepository.save(refund);
 
         for (RefundItemRequest itemRequest : request.items()) {
-
             OrderItem orderItem = orderItemMap.get(itemRequest.orderItemId());
-
             long itemRefundAmount = orderItem.getProductPrice() * itemRequest.quantity();
-
             RefundItem refundItem = new RefundItem(
                     refund,
                     orderItem,
@@ -215,8 +181,6 @@ public class RefundService {
         }
 
         long totalRefunded = alreadyRefundedAmount + totalRefundAmount;
-
-        //부분환불이 전부 완료됐을경우 환불로 처리
         boolean fullyRefunded = totalRefunded >= payment.getFinalPrice();
         if (fullyRefunded) {
             payment.markAsCancelled();

@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.payments.service;
-
 import com.example.commercepaymentsystems.common.exception.BusinessException;
 import com.example.commercepaymentsystems.common.exception.ErrorCode;
 import com.example.commercepaymentsystems.orders.entity.Order;
@@ -52,7 +51,6 @@ public class PaymentService {
                 order,
                 pointUsed
         );
-
         paymentRepository.save(payment);
     }
 
@@ -70,7 +68,7 @@ public class PaymentService {
     }
 
     public Payment findByIdWithOrder(Long paymentId) {
-        return  paymentRepository.findByIdWithOrder(paymentId)
+        return paymentRepository.findByIdWithOrder(paymentId)
                 .orElseThrow(() -> new BusinessException(ErrorCode.PAYMENT_NOT_FOUND));
     }
 }

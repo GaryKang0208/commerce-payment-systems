@@ -40,8 +40,6 @@ public class OrderController {
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("주문 생성 성공", response));
     }
 
-
-    // 내 주문 목록 조회
     @GetMapping
     public ResponseEntity<ApiResponse<Page<OrderListResponse>>> getOrders(
             @AuthenticationPrincipal Long customerId,
@@ -51,29 +49,21 @@ public class OrderController {
         return ResponseEntity.ok(ApiResponse.ok("주문 목록 조회 성공", response));
     }
 
-
-    // 내 주문 상세 조회
     @GetMapping("/{orderId}")
     public ResponseEntity<ApiResponse<OrderDetailResponse>> getOrder(
             @AuthenticationPrincipal Long customerId,
             @PathVariable Long orderId
     ) {
-
         OrderDetailResponse response = orderService.getOrder(customerId, orderId);
-
         return ResponseEntity.ok(ApiResponse.ok("주문 상세 조회 성공", response));
     }
 
-
-    // 주문 취소
     @PatchMapping("/{orderId}/cancel")
     public ResponseEntity<ApiResponse<Void>> cancelOrder(
             @AuthenticationPrincipal Long customerId,
             @PathVariable Long orderId
     ) {
-
         orderService.cancelOrder(customerId, orderId);
-
         return ResponseEntity.ok(ApiResponse.ok("주문 취소 성공", null));
     }
 }

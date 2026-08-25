@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.products.specification;
-
 import com.example.commercepaymentsystems.products.entity.Product;
 import com.example.commercepaymentsystems.products.enums.ProductCategory;
 import com.example.commercepaymentsystems.products.enums.ProductStatus;
@@ -43,25 +42,24 @@ public class ProductSpecification {
         };
     }
 
-
     public static Specification<Product> hasSalesStatus(ProductStatus salesStatus) {
         return ((root, query, criteriaBuilder) -> {
-            if (salesStatus==null){
+            if (salesStatus == null) {
                 return null;
             }
-            return criteriaBuilder.equal(root.get("salesStatus"),salesStatus);
+            return criteriaBuilder.equal(root.get("salesStatus"), salesStatus);
         });
     }
 
     public static Specification<Product> hasSoldOut(Boolean soldOut) {
         return ((root, query, criteriaBuilder) -> {
-            if (soldOut==null){
+            if (soldOut == null) {
                 return null;
             }
-            if (soldOut){
-                return criteriaBuilder.equal(root.get("stock"),0);
+            if (soldOut) {
+                return criteriaBuilder.equal(root.get("stock"), 0);
             }
-            return criteriaBuilder.greaterThan(root.get("stock"),0);
+            return criteriaBuilder.greaterThan(root.get("stock"), 0);
         });
     }
 }

@@ -16,7 +16,7 @@ public class Customers extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false,unique = true,length = 50)
+    @Column(nullable = false, unique = true, length = 50)
     private String email;
 
     @Column(nullable = false, length = 100)
@@ -31,14 +31,14 @@ public class Customers extends BaseEntity {
     @Column(nullable = false)
     private Long point = 0L;
 
-    public Customers(String email, String password, String name, String phoneNumber){
+    public Customers(String email, String password, String name, String phoneNumber) {
         this.email = email;
         this.password = password;
         this.name = name;
         this.phoneNumber = phoneNumber;
     }
 
-    public void updateInfo(String email, String name, String phoneNumber){
+    public void updateInfo(String email, String name, String phoneNumber) {
         this.email = email;
         this.name = name;
         this.phoneNumber = phoneNumber;
@@ -58,7 +58,7 @@ public class Customers extends BaseEntity {
         if (pointUsed > this.point) {
             throw new BusinessException(ErrorCode.INSUFFICIENT_POINT);
         }
-                this.point -= pointUsed;
+        this.point -= pointUsed;
     }
 
     public void revokePoint(Long pointUsed) {

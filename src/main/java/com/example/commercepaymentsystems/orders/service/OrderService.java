@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.orders.service;
-
 import com.example.commercepaymentsystems.cart.entity.CartItem;
 import com.example.commercepaymentsystems.cart.service.CartService;
 import com.example.commercepaymentsystems.common.exception.BusinessException;
@@ -45,14 +44,12 @@ public class OrderService {
 
     public OrderPreviewResponse getOrderPreview(Long customerId, OrderPreviewRequest request) {
         List<Long> cartItemIds = request == null ? List.of() : request.cartItemIds();
-
         List<CartItem> cartItems = getValidateCartItems(customerId, cartItemIds);
 
         List<OrderPreviewResponse.OrderPreviewItemResponse> items =
                 cartItems.stream()
                         .map(cartItem -> {
                             Product product = productService.findEntityById(cartItem.getProductId());
-
                             Long price = product.getPrice();
                             Integer quantity = cartItem.getQuantity();
                             Long subtotal =
@@ -68,105 +65,63 @@ public class OrderService {
                         })
                         .toList();
 
+        Long totalAmount = items.stream()
+                .mapToLong(OrderPreviewResponse.OrderPreviewItemResponse::subtotal)
+                .sum();
 
-        // 4. 전체 예상 주문 금액 계산
-        Long totalAmount =
-                items.stream()
-                        .mapToLong(
-                                OrderPreviewResponse.OrderPreviewItemResponse::subtotal)
-                        .sum();
-
-        // 5. 미리보기 응답 반환
         return new OrderPreviewResponse(items, totalAmount);
     }
-
-
 
     @Transactional
     public CreateOrderResponse createOrder(
             Long customerId,
             CreateOrderRequest request
     ) {
-
-        // 1. 주문한 고객 조회
         Customers customer = customersRepository.findById(customerId)
                 .orElseThrow(
                         () -> new BusinessException(ErrorCode.CUSTOMER_NOT_FOUND)
                 );
 
         List<Long> cartItemIds = (request == null) ? List.of() : request.cartItemIds();
-
-        // 2. 주문할 장바구니 상품 조회
-        // cartItemIds가 비어 있다면 해당 고객의 전체 장바구니를 주문한다.
         List<CartItem> cartItems = getValidateCartItems(customerId, cartItemIds);
 
-        // 3. 재고 차감 + 총 주문금액 계산
-        // 재고 검증이 모두 끝났기 때문에 이제 실제 재고를 차감한다.
         long totalPrice = 0L;
-
         for (CartItem cartItem : cartItems) {
-
             Product product = productService.findEntityById(cartItem.getProductId());
             Integer quantity = cartItem.getQuantity();
-
             product.decreaseStock(quantity);
-
-            // 총 주문금액은 반드시 서버에서 계산한다.
-            // 클라이언트가 전달한 금액은 신뢰하지 않는다.
             long subtotal = product.getPrice() * quantity;
-
             totalPrice += subtotal;
         }
 
-        // 사용할 포인트
         Long pointUsed = request.pointUsed();
-
-        // 주문 금액보다 많은 포인트 사용 방지
         if (pointUsed > totalPrice) {
             throw new BusinessException(ErrorCode.POINT_EXCEEDS_ORDER_AMOUNT);
         }
-
-        // 보유 포인트 확인 + 차감
         customer.usePoint(pointUsed);
 
-        // 4. 주문번호 생성
         String orderNumber = generateOrderNumber();
 
-        // 5. Order 생성
-        // Order 생성자 내부에서 OrderStatus.PENDING_PAYMENT로 초기화된다.
         Order order = new Order(
                 customer,
                 orderNumber,
                 totalPrice,
                 pointUsed
         );
+        Order savedOrder = orderRepository.save(order);
 
-        Order savedOrder =
-                orderRepository.save(order);
-
-        // 6. 주문상품 생성
-        // OrderItem 생성자에서 productName과 productPrice를 복사하여 주문 당시 상품 정보를 스냅샷으로 보관한다.
-        List<OrderItem> orderItems =
-                cartItems.stream()
-                        .map(cartItem ->
-                                new OrderItem(
-                                        savedOrder,
-                                        productService.findEntityById(cartItem.getProductId()),
-                                        cartItem.getQuantity()
-                                )
+        List<OrderItem> orderItems = cartItems.stream()
+                .map(cartItem ->
+                        new OrderItem(
+                                savedOrder,
+                                productService.findEntityById(cartItem.getProductId()),
+                                cartItem.getQuantity()
                         )
-                        .toList();
-
+                )
+                .toList();
         orderItemRepository.saveAll(orderItems);
-
-        // 7. 결제 사전 기록 생성
-        // 결제 금액은 반드시 주문에서 계산한 totalAmount를 사용한다.
         paymentService.createPayment(savedOrder, totalPrice, pointUsed);
 
-        // 주문 생성 시 장바구니는 삭제하지 않는다.
-        // 결제 실패 후 다시 결제할 수 있어야 하기 때문에 장바구니 삭제는 결제 성공 시점에 처리한다.
-
-        // 8. 주문 생성 결과 반환
         return new CreateOrderResponse(
                 savedOrder.getId(),
                 savedOrder.getOrderNumber(),
@@ -176,9 +131,6 @@ public class OrderService {
         );
     }
 
-
-    // 내 주문 목록 조회
-    // 최신 주문부터 조회한다.
     public Page<OrderListResponse> getOrders(Long customerId, Pageable pageable) {
 
         return orderRepository
@@ -186,14 +138,10 @@ public class OrderService {
                 .map(this::toListResponse);
     }
 
-
-    // 내 주문 상세 조회
-    // customerId까지 조건으로 사용해서 다른 고객의 주문을 조회하지 못하게 한다.
     public OrderDetailResponse getOrder(
             Long customerId,
             Long orderId
     ) {
-
         Order order = orderRepository
                 .findByIdAndCustomer_Id(
                         orderId,
@@ -201,13 +149,11 @@ public class OrderService {
                 )
                 .orElseThrow(() -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
 
-        // 해당 주문의 주문상품 조회
         List<OrderDetailResponse.OrderItemResponse> orderItems =
                 orderItemRepository.findByOrder_Id(orderId)
                         .stream()
                         .map(this::toItemResponse)
                         .toList();
-
 
         return new OrderDetailResponse(
                 order.getId(),
@@ -224,13 +170,7 @@ public class OrderService {
         return orderItemRepository.findByOrder_Id(orderId);
     }
 
-
-    // Order → OrderListResponse
-    // 주문 목록에서는 상품 전체 상세가 필요하지 않으므로 주문 기본 정보만 반환한다.
-    private OrderListResponse toListResponse(
-            Order order
-    ) {
-
+    private OrderListResponse toListResponse(Order order) {
         return new OrderListResponse(
                 order.getId(),
                 order.getOrderNumber(),
@@ -240,13 +180,7 @@ public class OrderService {
         );
     }
 
-
-    // OrderItem → OrderItemResponse
-    // Product 현재 가격을 사용하지 않고 OrderItem에 저장한 주문 당시 스냅샷을 사용한다.
-    private OrderDetailResponse.OrderItemResponse toItemResponse(
-            OrderItem orderItem
-    ) {
-
+    private OrderDetailResponse.OrderItemResponse toItemResponse(OrderItem orderItem) {
         return new OrderDetailResponse.OrderItemResponse(
                 orderItem.getProductName(),
                 orderItem.getProductPrice(),
@@ -254,12 +188,7 @@ public class OrderService {
         );
     }
 
-
-    // 주문번호 생성
-    // ERD의 VARCHAR(20)에 맞춰 20자 주문번호를 생성한다.
-    // 예) ORD-a12bc34de56f7890
     private String generateOrderNumber() {
-
         return "ORD-"
                 + UUID.randomUUID()
                 .toString()
@@ -269,13 +198,11 @@ public class OrderService {
 
     private List<CartItem> getValidateCartItems(Long customerId, List<Long> cartItemIds) {
         List<CartItem> cartItems = cartItemIds.isEmpty()
-                        ? cartService.findCartEntities(customerId)
-                        : cartService.findCartEntitiesByIds(cartItemIds, customerId);
-
+                ? cartService.findCartEntities(customerId)
+                : cartService.findCartEntitiesByIds(cartItemIds, customerId);
         if (cartItems.isEmpty()) {
             throw new BusinessException(ErrorCode.CART_ITEM_NOT_FOUND);
         }
-
         if (!cartItemIds.isEmpty() && cartItems.size() != cartItemIds.size()) {
             throw new BusinessException(ErrorCode.CART_ITEM_FORBIDDEN);
         }
@@ -288,38 +215,26 @@ public class OrderService {
         order.confirm();
     }
 
-    // 사용자가 주문 취소 API 호출할 때 사용
     @Transactional
     public void cancelOrder(Long customerId, Long orderId) {
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(
-                        () -> new BusinessException(ErrorCode.ORDER_NOT_FOUND)
-                );
+                        () -> new BusinessException(ErrorCode.ORDER_NOT_FOUND));
 
-        // 본인 주문 확인
         if (!order.getCustomer().getId().equals(customerId)) {
             throw new BusinessException(ErrorCode.ORDER_ACCESS_DENIED);
         }
-
-        // 결제 대기 상태만 취소 가능
         if (order.getOrderStatus() != OrderStatus.PENDING_PAYMENT) {
             throw new BusinessException(ErrorCode.INVALID_ORDER_STATUS);
         }
 
-        // 주문 상품 조회
         List<OrderItem> orderItems = orderItemRepository.findByOrder_Id(orderId);
-
-        // 선차감 재고 복구
         for (OrderItem orderItem : orderItems) {
             orderItem.getProduct().restoreStock(orderItem.getQuantity());
         }
 
-        // 주문 취소
         order.cancel();
-
-        // 결제 취소
         Payment payment = paymentService.findByOrderIdWithOrder(orderId);
-
         payment.markAsCancelled();
     }
 

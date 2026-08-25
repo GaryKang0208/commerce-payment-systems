@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.infra.portone.webhook;
-
 import com.example.commercepaymentsystems.payments.entity.Payment;
 import com.example.commercepaymentsystems.payments.entity.PaymentStatus;
 import com.example.commercepaymentsystems.payments.port.PaymentGateway;

@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.infra.portone.webhook;
-
 import com.example.commercepaymentsystems.common.exception.BusinessException;
 import com.example.commercepaymentsystems.common.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;

@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.infra.portone.webhook;
-
 import com.example.commercepaymentsystems.common.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -16,14 +15,19 @@ public class WebhookEvent extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     @Column(nullable = false, unique = true)
     String webhookId;
+
     @Column(nullable = false)
     String eventType;
+
     @Enumerated(EnumType.STRING)
     WebhookStatus status;
+
     @Column(nullable = false, length = 500)
     String payload;
+
     LocalDateTime finishedAt;
 
     public WebhookEvent(String webhookId, String eventType, String payload) {

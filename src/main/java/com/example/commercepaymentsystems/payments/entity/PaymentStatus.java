@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.payments.entity;
-
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor

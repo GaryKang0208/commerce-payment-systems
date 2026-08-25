@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.refund.entity;
-
 import com.example.commercepaymentsystems.common.entity.BaseEntity;
 import com.example.commercepaymentsystems.orders.entity.OrderItem;
 import jakarta.persistence.*;
@@ -12,7 +11,6 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class RefundItem extends BaseEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

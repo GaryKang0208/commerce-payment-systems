@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.payments.dto;
-
 import jakarta.validation.constraints.Size;
 
 public record PaymentCancelRequest(

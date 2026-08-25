@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.point.service;
-
 import com.example.commercepaymentsystems.common.exception.BusinessException;
 import com.example.commercepaymentsystems.common.exception.ErrorCode;
 import com.example.commercepaymentsystems.customers.entity.Customers;
@@ -13,15 +12,35 @@ import com.example.commercepaymentsystems.point.repository.PointRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 @Transactional
 public class PointService {
-
     private final CustomersRepository customersRepository;
     private final PointRepository pointRepository;
+
+    @Transactional(readOnly = true)
+    public PointBalanceResponse getBalance(Long customerId) {
+        Customers customer = customersRepository.findById(customerId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CUSTOMER_NOT_FOUND));
+        return new PointBalanceResponse(customer.getPoint());
+    }
+
+    @Transactional(readOnly = true)
+    public List<PointTransactionResponse> getHistory(Long customerId) {
+        return pointRepository.findByCustomersIdOrderByCreatedAtDesc(customerId)
+                .stream()
+                .map(PointTransactionResponse::from)
+                .toList();
+    }
+
+    private Customers getLockedCustomer(Long customerId) {
+        return customersRepository.findByIdForUpdate(customerId)
+                .orElseThrow(() -> new BusinessException(ErrorCode.CUSTOMER_NOT_FOUND));
+    }
 
     public void earn(Customers customer, Payment payment, Long amount) {
         Customers lockedCustomer = getLockedCustomer(customer.getId());
@@ -53,27 +72,6 @@ public class PointService {
         pointRepository.save(
                 new Point(lockedCustomer, payment, PointTransactionType.RESTOREUSE, amount)
         );
-    }
-
-
-    @Transactional(readOnly = true)
-    public PointBalanceResponse getBalance(Long customerId) {
-        Customers customer = customersRepository.findById(customerId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.CUSTOMER_NOT_FOUND));
-        return new PointBalanceResponse(customer.getPoint());
-    }
-
-    @Transactional(readOnly = true)
-    public List<PointTransactionResponse> getHistory(Long customerId) {
-        return pointRepository.findByCustomersIdOrderByCreatedAtDesc(customerId)
-                .stream()
-                .map(PointTransactionResponse::from)
-                .toList();
-    }
-
-    private Customers getLockedCustomer(Long customerId) {
-        return customersRepository.findByIdForUpdate(customerId)
-                .orElseThrow(() -> new BusinessException(ErrorCode.CUSTOMER_NOT_FOUND));
     }
 }
 

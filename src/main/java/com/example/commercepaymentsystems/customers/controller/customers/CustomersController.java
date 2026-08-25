@@ -18,34 +18,27 @@ public class CustomersController {
 
     @GetMapping("/me")
     public ResponseEntity<ApiResponse<ProfileResponse>> getProfile(
-            @AuthenticationPrincipal Long customerId) {
+            @AuthenticationPrincipal Long customerId
+    ) {
         ProfileResponse response = customersService.getProfile(customerId);
         return ResponseEntity.ok(ApiResponse.ok(response));
     }
 
     @PatchMapping("/me")
-    public ResponseEntity<ApiResponse<Void>> updateProfile(@AuthenticationPrincipal Long customerId,
-                                                           @Valid @RequestBody UpdateProfileRequest request) {
+    public ResponseEntity<ApiResponse<Void>> updateProfile(
+            @AuthenticationPrincipal Long customerId,
+            @Valid @RequestBody UpdateProfileRequest request
+    ) {
         customersService.updateProfile(customerId, request);
         return ResponseEntity.ok(ApiResponse.ok("회원정보 수정이 완료되었습니다.", null));
     }
 
     @PatchMapping("/me/password")
-    public ResponseEntity<ApiResponse<Void>> changePassword(@AuthenticationPrincipal Long customerId,
+    public ResponseEntity<ApiResponse<Void>> changePassword(
+            @AuthenticationPrincipal Long customerId,
             @Valid @RequestBody ChangePasswordRequest request
     ) {
         customersService.changePassword(customerId, request);
         return ResponseEntity.ok(ApiResponse.ok("비밀번호 변경이 완료되었습니다.", null));
     }
-
-
-
-
-
-
-
-
-
-
-
 }

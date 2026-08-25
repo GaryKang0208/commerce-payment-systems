@@ -7,5 +7,4 @@ public record ProfileResponse(
         String phoneNumber,
         Long point
 ) {
-
 }

@@ -4,16 +4,16 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;
 
-public interface CartItemRepository extends JpaRepository<CartItem, Long>{
+public interface CartItemRepository extends JpaRepository<CartItem, Long> {
     List<CartItem> findByCart_Id(Long cartId);
 
     List<CartItem> findByCart_CustomerId(Long customerId);
+
     List<CartItem> findByIdInAndCart_CustomerId(List<Long> ids, Long customerId);
 
     Optional<CartItem> findByCart_IdAndProductId(Long cartId, Long productId);
 
-    int deleteByIdAndCart_Id(Long id,
-                             Long cartId);
+    int deleteByIdAndCart_Id(Long id, Long cartId);
 
     Optional<CartItem> findByIdAndCart_Id(Long id, Long cartId);
 

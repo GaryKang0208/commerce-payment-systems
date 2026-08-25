@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.point.dto;
-
 import com.example.commercepaymentsystems.point.entity.Point;
 
 import java.time.LocalDateTime;

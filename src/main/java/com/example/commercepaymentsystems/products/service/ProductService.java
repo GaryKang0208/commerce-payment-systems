@@ -25,36 +25,43 @@ import java.util.List;
 public class ProductService {
     public final ProductRepository productRepository;
 
-    public ProductPageResponse findAll(int page, int size, ProductCategory category, Long minimumPrice, Long maximumPrice, ProductStatus salesStatus,Boolean soldOut, String sort) {
-        if (page <0){
+    public ProductPageResponse findAll(int page, int size, ProductCategory category, Long minimumPrice, Long maximumPrice, ProductStatus salesStatus, Boolean soldOut, String sort) {
+        if (page < 0) {
             throw new BusinessException(ErrorCode.INVALID_PAGE);
         }
-        if (size<=0||size>100){
+        if (size <= 0 || size > 100) {
             throw new BusinessException(ErrorCode.INVALID_PAGE_SIZE);
         }
-        if (minimumPrice != null && minimumPrice<0){
+        if (minimumPrice != null && minimumPrice < 0) {
             throw new BusinessException(ErrorCode.INVALID_MINIMUM_PRICE);
         }
-        if (maximumPrice != null && maximumPrice<0){
+        if (maximumPrice != null && maximumPrice < 0) {
             throw new BusinessException(ErrorCode.INVALID_MAXIMUM_PRICE);
         }
-        if (maximumPrice != null && minimumPrice != null && minimumPrice>maximumPrice){
+        if (maximumPrice != null && minimumPrice != null && minimumPrice > maximumPrice) {
             throw new BusinessException(ErrorCode.INVALID_PRICE_RANGE);
         }
+
         Sort sorting;
-        if (sort.equals("asc")){
-            sorting = Sort.by(Sort.Direction.ASC,"price");
-        }else if (sort.equals("desc")){
-            sorting = Sort.by(Sort.Direction.DESC,"price");
-        }else {
-            sorting = Sort.by(Sort.Direction.DESC,"createdAt");
+        if (sort.equals("asc")) {
+            sorting = Sort.by(Sort.Direction.ASC, "price");
+        } else if (sort.equals("desc")) {
+            sorting = Sort.by(Sort.Direction.DESC, "price");
+        } else {
+            sorting = Sort.by(Sort.Direction.DESC, "createdAt");
         }
-        Pageable pageable= PageRequest.of(page,size, sorting);
-        Specification<Product> spec= ProductSpecification.hasCategory(category).and(ProductSpecification.minimumValue(minimumPrice).and(ProductSpecification.maximumValue(maximumPrice).and(ProductSpecification.hasSalesStatus(salesStatus)).and(ProductSpecification.hasSoldOut(soldOut))));
-        Page<Product> products=productRepository.findAll(spec,pageable);
-        List<ProductResponse> productResponses= products.stream()
+
+        Pageable pageable = PageRequest.of(page, size, sorting);
+        Specification<Product> spec = ProductSpecification.hasCategory(category)
+                .and(ProductSpecification.minimumValue(minimumPrice)
+                        .and(ProductSpecification.maximumValue(maximumPrice)
+                                .and(ProductSpecification.hasSalesStatus(salesStatus))
+                                .and(ProductSpecification.hasSoldOut(soldOut))));
+        Page<Product> products = productRepository.findAll(spec, pageable);
+        List<ProductResponse> productResponses = products.stream()
                 .map(this::toResponse)
                 .toList();
+
         return new ProductPageResponse(
                 productResponses,
                 products.getTotalElements(),
@@ -65,17 +72,17 @@ public class ProductService {
 
 
     public ProductResponse findOne(Long id) {
-        Product product=productRepository.findById(id)
-                .orElseThrow(()->new BusinessException(ErrorCode.PRODUCT_NOT_FOUND
-                ));
+        Product product = productRepository.findById(id)
+                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
         return toResponse(product);
     }
+
     public Product findEntityById(Long id) {
         return productRepository.findById(id)
-                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND)
-                );
-    } //주문쪽 요청하신 코드
-    private ProductResponse toResponse(Product product){
+                .orElseThrow(() -> new BusinessException(ErrorCode.PRODUCT_NOT_FOUND));
+    }
+
+    private ProductResponse toResponse(Product product) {
         return new ProductResponse(
                 product.getId(),
                 product.getName(),
