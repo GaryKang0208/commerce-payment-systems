@@ -31,11 +31,11 @@ public class Payment extends BaseEntity {
 
     @Column(nullable = false)
     String portoneId;
-    //사용 포인트
+
     Long pointUsed;
-    //실결제 금액
+
     Long pgAmount;
-    //적립된 포인트
+
     Long savedPoints;
 
     @OneToOne(fetch = FetchType.LAZY)

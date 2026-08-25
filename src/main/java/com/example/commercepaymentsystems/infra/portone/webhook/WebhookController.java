@@ -28,8 +28,6 @@ public class WebhookController {
             webhook = portOneWebhookVerifier.verify(body, webhookId, webhookSignature, webhookTimestamp);
         } catch (WebhookVerificationException e) {
             log.warn("[Webhook] verification failed id={}, reason={}", webhookId, e.getMessage());
-
-            //실패해도 웹훅을 더 이상 보내지 않도록 ok 응답
             return ResponseEntity.ok(ApiResponse.ok());
         }
 

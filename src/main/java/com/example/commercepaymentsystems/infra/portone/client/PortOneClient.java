@@ -25,21 +25,11 @@ public class PortOneClient implements PaymentGateway {
 
     @Override
     public PaymentGatewayResponse getPayment(String paymentId) {
-        //logging
-//        log.info("PortOne 결제 조회: {}", paymentId);
         log.info(
                 "PortOne 결제 조회: paymentId={}, storeId={}",
                 paymentId,
                 portOneProperties.getStoreId()
         );
-
-//        PortOnePaymentResponse response = portOneRestClient.get()
-//                .uri(uriBuilder -> uriBuilder
-//                        .path("/payments/{paymentId}")
-//                        .queryParam("storeId", portOneProperties.getStoreId())
-//                        .build(paymentId))
-//                .retrieve()
-//                .body(PortOnePaymentResponse.class);
 
         PortOnePaymentResponse response = null;
         try {
@@ -56,7 +46,7 @@ public class PortOneClient implements PaymentGateway {
 
         System.out.println("response 로그 = " + response);
 
-        if (response == null) { //오류가 나도 null이 아님
+        if (response == null) {
             throw new BusinessException(ErrorCode.PG_FAILURE);
         }
 

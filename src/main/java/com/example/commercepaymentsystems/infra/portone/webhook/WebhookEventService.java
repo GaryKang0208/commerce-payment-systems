@@ -17,7 +17,6 @@ public class WebhookEventService {
         if (webhookEventRepository.existsByWebhookId(webhookId)) {
             return Optional.empty();
         }
-
         WebhookEvent webhookEvent = webhookEventRepository.save(new WebhookEvent(webhookId, type, payload));
         return Optional.of(webhookEvent);
     }
