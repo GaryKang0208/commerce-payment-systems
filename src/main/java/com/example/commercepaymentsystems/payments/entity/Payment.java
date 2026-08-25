@@ -23,6 +23,7 @@ public class Payment extends BaseEntity {
 
     @Column(nullable = false)
     Long finalPrice;
+
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     PaymentStatus status;

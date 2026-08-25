@@ -1,5 +1,6 @@
 package com.example.commercepaymentsystems.payments.dto;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
 public record PaymentConfirmRequest(
@@ -10,9 +11,9 @@ public record PaymentConfirmRequest(
         String result,
 
         @NotNull(message = "결제 금액은 필수입니다.")
-        Long paymentPrice
+        Long paymentPrice,
 
-//        @NotBlank(message = "PortOne ID는 필수입니다.")
-//        String portOneId
+        @NotBlank(message = "PortOne ID는 필수입니다.")
+        String portOneId
 ) {
 }

@@ -36,29 +36,18 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class OrderService {
-
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
-
     private final CustomersRepository customersRepository;
     private final CartService cartService;
     private final ProductService productService;
     private final PaymentService paymentService;
 
-
-    // 주문 미리보기
-    // 로그인한 고객의 전체 장바구니 또는 선택한 장바구니 상품을 기준으로 현재 상품 가격과 예상 주문 금액을 계산한다.
     public OrderPreviewResponse getOrderPreview(Long customerId, OrderPreviewRequest request) {
-
-        // 1. 요청한 장바구니 상품 ID 조회
-        // request가 없거나 cartItemIds가 비어 있으면 전체 장바구니로 처리
         List<Long> cartItemIds = request == null ? List.of() : request.cartItemIds();
 
-        // 2. 전체 장바구니 또는 선택한 장바구니 상품 조회
         List<CartItem> cartItems = getValidateCartItems(customerId, cartItemIds);
 
-        // 3. CartItem → OrderPreviewItemResponse 변환
-        // 미리보기에서는 OrderItem 스냅샷 가격이 아니라 Product의 현재 가격을 사용한다.
         List<OrderPreviewResponse.OrderPreviewItemResponse> items =
                 cartItems.stream()
                         .map(cartItem -> {
@@ -66,8 +55,6 @@ public class OrderService {
 
                             Long price = product.getPrice();
                             Integer quantity = cartItem.getQuantity();
-
-                            // 상품별 예상 주문금액
                             Long subtotal =
                                     price * quantity;
 
@@ -94,22 +81,7 @@ public class OrderService {
     }
 
 
-    /**
-     * 주문 생성
-     *
-     * 하나의 트랜잭션 안에서
-     *
-     * 1. 고객 조회
-     * 2. 장바구니 조회
-     * 3. 상품별 재고 검증
-     * 4. 재고 차감
-     * 5. 총 주문금액 계산
-     * 6. 주문 생성
-     * 7. 주문상품 스냅샷 생성
-     * 8. 결제 사전 기록 생성
-     *
-     * 중간에 예외가 발생하면 전체 작업이 롤백된다.
-     */
+
     @Transactional
     public CreateOrderResponse createOrder(
             Long customerId,

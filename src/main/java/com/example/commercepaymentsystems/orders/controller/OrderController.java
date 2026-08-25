@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.orders.controller;
-
 import com.example.commercepaymentsystems.common.ApiResponse;
 import com.example.commercepaymentsystems.orders.dto.request.CreateOrderRequest;
 import com.example.commercepaymentsystems.orders.dto.request.OrderPreviewRequest;
@@ -17,37 +16,27 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/orders")
 public class OrderController {
-
     private final OrderService orderService;
 
-    // 주문 미리보기
     @PostMapping("/preview")
     public ResponseEntity<ApiResponse<OrderPreviewResponse>> getOrderPreview(
             @AuthenticationPrincipal Long customerId,
             @RequestBody(required = false) OrderPreviewRequest request
     ) {
-
         OrderPreviewResponse response = orderService.getOrderPreview(customerId, request);
-
         return ResponseEntity.ok(ApiResponse.ok("주문 미리보기 조회 성공", response));
     }
 
-
-    // 주문 생성
     @PostMapping
     public ResponseEntity<ApiResponse<CreateOrderResponse>> createOrder(
             @AuthenticationPrincipal Long customerId,
             @Valid @RequestBody CreateOrderRequest request
     ) {
-
         CreateOrderResponse response = orderService.createOrder(customerId, request);
-
         return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.ok("주문 생성 성공", response));
     }
 
@@ -59,7 +48,6 @@ public class OrderController {
             Pageable pageable
     ) {
         Page<OrderListResponse> response = orderService.getOrders(customerId, pageable);
-
         return ResponseEntity.ok(ApiResponse.ok("주문 목록 조회 성공", response));
     }
 

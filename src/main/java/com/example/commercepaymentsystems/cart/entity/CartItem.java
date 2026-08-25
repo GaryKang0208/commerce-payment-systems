@@ -1,6 +1,4 @@
 package com.example.commercepaymentsystems.cart.entity;
-
-
 import com.example.commercepaymentsystems.common.exception.BusinessException;
 import com.example.commercepaymentsystems.common.exception.ErrorCode;
 import jakarta.persistence.*;
@@ -48,6 +46,7 @@ public class CartItem extends com.example.commercepaymentsystems.common.entity.B
         }
         this.quantity += quantity;
     }
+
     public void changeQuantity(int quantity){
         if(quantity<1){
             throw new BusinessException(ErrorCode.INVALID_QUANTITY);

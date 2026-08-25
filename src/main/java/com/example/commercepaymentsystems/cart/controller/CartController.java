@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.cart.controller;
-
 import com.example.commercepaymentsystems.cart.dto.request.AddCartRequest;
 import com.example.commercepaymentsystems.cart.dto.request.UpdateCartRequest;
 import com.example.commercepaymentsystems.cart.dto.response.AddCartResponse;
@@ -12,9 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-
-
 
 @RestController
 @RequestMapping("/api/cart")
@@ -35,14 +31,14 @@ public class CartController {
     }
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> updateQuantity(@AuthenticationPrincipal Long customerId,
-                                                                             @PathVariable Long id,
-                                                                             @Valid @RequestBody UpdateCartRequest request){
+                                                            @PathVariable Long id,
+                                                            @Valid @RequestBody UpdateCartRequest request){
         cartService.updateQuantity(customerId, id, request.quantity());
         return ResponseEntity.ok(ApiResponse.ok());
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> removeItem(@AuthenticationPrincipal Long customerId,
-                                           @PathVariable Long id){
+                                                        @PathVariable Long id){
         cartService.removeItem(customerId,id);
         return ResponseEntity.ok(ApiResponse.ok());
     }
