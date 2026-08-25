@@ -64,6 +64,7 @@ public enum ErrorCode {
     INSUFFICIENT_POINT(HttpStatus.BAD_REQUEST, "POINT_001", "포인트 잔액이 부족합니다.");
 
 
+
     private final HttpStatus status;
     private final String code;
     private final String message;
