@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.common.exception;
-
 import lombok.Getter;
 
 @Getter

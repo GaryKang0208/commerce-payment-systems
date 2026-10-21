@@ -12,3 +12,9 @@ logging:
     org.springframework.boot: info
     org.springframework.web: info
     org.hibernate.SQL: info
+
+portone:
+  api-secret: test-secret
+  base-url: "https://api.portone.io"
+  store-id: store-id
+  channel-key: test-key

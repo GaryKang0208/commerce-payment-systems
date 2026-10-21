@@ -25,7 +25,8 @@ public class AuthService {
             throw new BusinessException(
                     ErrorCode.DUPLICATE_EMAIL
             );
-        }Customers customer = new Customers(
+        }
+        Customers customer = new Customers(
                 request.email(),
                 passwordEncoder.encode(request.password()),
                 request.name(),
@@ -37,7 +38,7 @@ public class AuthService {
     public TokenResponse login(LoginRequest request) {
         Customers customer =
                 repository.findByEmail(request.email()).orElseThrow(() -> new BusinessException(
-                                        ErrorCode.INVALID_CREDENTIALS));
+                        ErrorCode.INVALID_CREDENTIALS));
         if (!passwordEncoder.matches(request.password(), customer.getPassword())) {
             throw new BusinessException(ErrorCode.INVALID_CREDENTIALS);
         }

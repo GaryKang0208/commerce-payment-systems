@@ -14,7 +14,6 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfig {
-
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
@@ -32,7 +31,14 @@ public class SecurityConfig {
                                 .permitAll()
                                 .requestMatchers(
                                         "/api/products",
-                                        "/api/products/**"
+                                        "/api/products/**",
+                                        "/api/portone-info",
+                                        "/api/webhooks/portone"
+                                ).permitAll()
+                                .requestMatchers(
+                                        "/config.js",
+                                        "/index.html",
+                                        "/favicon.ico"
                                 ).permitAll()
                                 .anyRequest().authenticated())
                 .addFilterBefore(

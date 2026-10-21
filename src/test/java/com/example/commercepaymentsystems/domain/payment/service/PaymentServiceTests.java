@@ -1,6 +1,8 @@
 package com.example.commercepaymentsystems.domain.payment.service;
 
-import com.example.commercepaymentsystems.customers.entity.Customer;
+import com.example.commercepaymentsystems.common.exception.BusinessException;
+import com.example.commercepaymentsystems.common.exception.ErrorCode;
+import com.example.commercepaymentsystems.customers.entity.Customers;
 import com.example.commercepaymentsystems.orders.entity.Order;
 import com.example.commercepaymentsystems.payments.dto.PaymentResponse;
 import com.example.commercepaymentsystems.payments.entity.Payment;
@@ -17,8 +19,8 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.verify;
@@ -34,18 +36,22 @@ public class PaymentServiceTests {
     @DisplayName("결제 단건 조회 테스트 - 성공")
     void find_payment_by_id_success() {
         //given
-        Customer customer = new Customer(
+        Customers customer = new Customers(
                 "email@email.com",
                 "password",
                 "name"
+                ,"000-0000-0000"
         );
         ReflectionTestUtils.setField(customer, "id", 1L);
         Payment payment = new Payment(
             10000L,
                 PaymentStatus.IN_PROGRESS,
                 new Order(
-                        customer
-                )
+                        customer,
+                        "ord_num",
+                        10000L
+                ),
+                0L
         );
         ReflectionTestUtils.setField(payment, "id", 1L);
         given(repo.findByIdAndCustomerId(anyLong(), anyLong())).willReturn(Optional.of(payment));
@@ -65,25 +71,31 @@ public class PaymentServiceTests {
         given(repo.findByIdAndCustomerId(anyLong(), anyLong())).willReturn(Optional.empty());
 
         //when&then
-        assertThrows(RuntimeException.class, () -> service.getPayment(1L, 1L));
+        assertThatThrownBy(() ->  service.getPayment(1L, 1L))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage(ErrorCode.PAYMENT_NOT_FOUND.getMessage());
     }
 
     @Test
     @DisplayName("orderId를 통해 Payment 및 Order 정보 조회")
     void find_payment_by_order_id_success() {
         //given
-        Customer customer = new Customer(
+        Customers customer = new Customers(
                 "email@email.com",
                 "password",
-                "name"
+                "name",
+                "000-0000-0000"
         );
         ReflectionTestUtils.setField(customer, "id", 1L);
         Payment payment = new Payment(
                 10000L,
                 PaymentStatus.IN_PROGRESS,
                 new Order(
-                        customer
-                )
+                        customer,
+                        "ord_num",
+                        10000L
+                ),
+                0L
         );
         given(repo.findByOrderIdWithOrder(anyLong())).willReturn(Optional.of(payment));
 
@@ -102,7 +114,9 @@ public class PaymentServiceTests {
         given(repo.findByOrderIdWithOrder(anyLong())).willReturn(Optional.empty());
 
         //when&then
-        assertThrows(RuntimeException.class, () -> service.findByOrderIdWithOrder(1L));
+        assertThatThrownBy(() ->  service.findByOrderIdWithOrder(1L))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage(ErrorCode.PAYMENT_NOT_FOUND.getMessage());
     }
 
     @Test
@@ -113,12 +127,16 @@ public class PaymentServiceTests {
                 10000L,
                 PaymentStatus.IN_PROGRESS,
                 new Order(
-                        new Customer(
+                        new Customers(
                                 "email",
                                 "password",
-                                "name"
-                        )
-                )
+                                "name",
+                                "000-0000-0000"
+                        ),
+                        "ord_num",
+                        10000L
+                ),
+                0L
         );
 
         //when

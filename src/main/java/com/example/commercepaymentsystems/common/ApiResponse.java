@@ -1,5 +1,4 @@
 package com.example.commercepaymentsystems.common;
-
 import com.example.commercepaymentsystems.common.exception.ErrorCode;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Getter;

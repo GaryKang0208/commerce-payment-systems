@@ -1,15 +1,14 @@
 package com.example.commercepaymentsystems.domain.payment.repository;
 
 import com.example.commercepaymentsystems.common.config.JpaAuditingConfig;
-import com.example.commercepaymentsystems.customers.CustomerRepository;
-import com.example.commercepaymentsystems.customers.entity.Customer;
+import com.example.commercepaymentsystems.customers.entity.Customers;
+import com.example.commercepaymentsystems.customers.repository.CustomersRepository;
 import com.example.commercepaymentsystems.orders.entity.Order;
 import com.example.commercepaymentsystems.orders.repository.OrderRepository;
 import com.example.commercepaymentsystems.payments.entity.Payment;
 import com.example.commercepaymentsystems.payments.entity.PaymentStatus;
 import com.example.commercepaymentsystems.payments.repository.PaymentRepository;
 import com.example.commercepaymentsystems.support.MySQLSupport;
-import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -29,19 +28,24 @@ public class PaymentRepositoryTest {
     @Autowired
     private OrderRepository orderRepository;
     @Autowired
-    private CustomerRepository customerRepository;
+    private CustomersRepository customerRepository;
 
     private Order order;
     private Long customerId;
 
     @BeforeEach
     void setup() {
-        Customer customer = new Customer(
+        Customers customer = new Customers(
                 "email@email.com",
                 "password",
-                "name"
+                "name",
+                "000-0000-0000"
         );
-        order = new Order(customer);
+        order = new Order(
+                customer,
+                "order_num",
+                10000L
+        );
 
         customerId = customerRepository.save(customer).getId();
         orderRepository.save(order);

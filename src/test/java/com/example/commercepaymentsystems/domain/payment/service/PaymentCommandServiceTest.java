@@ -1,7 +1,9 @@
 package com.example.commercepaymentsystems.domain.payment.service;
 
 import com.example.commercepaymentsystems.cart.service.CartService;
-import com.example.commercepaymentsystems.customers.entity.Customer;
+import com.example.commercepaymentsystems.common.exception.BusinessException;
+import com.example.commercepaymentsystems.common.exception.ErrorCode;
+import com.example.commercepaymentsystems.customers.entity.Customers;
 import com.example.commercepaymentsystems.orders.entity.Order;
 import com.example.commercepaymentsystems.orders.entity.OrderStatus;
 import com.example.commercepaymentsystems.orders.service.OrderService;
@@ -17,10 +19,8 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.List;
-
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.BDDMockito.willAnswer;
@@ -43,19 +43,20 @@ class PaymentCommandServiceTest {
     void failPaymentAndOrder_test_success() {
         //given
         Order order = new Order(
-                new Customer(
+                new Customers(
                         "email",
                         "password",
-                        "name"
+                        "name",
+                        "000-0000-0000"
                 ),
-                OrderStatus.PENDING_PAYMENT,
-                10000L,
-                List.of()
+                "order_num",
+                10000L
         );
         Payment payment = new Payment(
                 10000L,
                 PaymentStatus.IN_PROGRESS,
-                order
+                order,
+                0L
         );
 
         given(paymentService.findByOrderIdWithOrder(anyLong())).willReturn(payment);
@@ -64,7 +65,7 @@ class PaymentCommandServiceTest {
             return null;
         }).given(paymentService).failPayment(payment);
         willAnswer(invocation -> {
-            order.markAsCancelled();
+            order.cancel();
             return null;
         }).given(orderService).cancelOrder(order);
 
@@ -73,7 +74,7 @@ class PaymentCommandServiceTest {
 
         //then
         assertEquals(PaymentStatus.FAILED, payment.getStatus());
-        assertEquals(OrderStatus.CANCELLED, payment.getOrder().getStatus());
+        assertEquals(OrderStatus.CANCELED, payment.getOrder().getStatus());
     }
 
     @Test
@@ -81,19 +82,20 @@ class PaymentCommandServiceTest {
     void failPaymentAndOrder_test_failure_invalid_status() {
         //given
         Order order = new Order(
-                new Customer(
+                new Customers(
                         "email",
                         "password",
-                        "name"
+                        "name",
+                        "000-0000-0000"
                 ),
-                OrderStatus.PENDING_PAYMENT,
-                10000L,
-                List.of()
+                "ord_num",
+                10000L
         );
         Payment payment = new Payment(
                 10000L,
                 PaymentStatus.CANCELLED,
-                order
+                order,
+                0L
         );
 
         given(paymentService.findByOrderIdWithOrder(anyLong())).willReturn(payment);
@@ -103,7 +105,9 @@ class PaymentCommandServiceTest {
         }).given(paymentService).failPayment(payment);
 
         //when&hen
-        assertThrows(RuntimeException.class, () -> paymentCommandService.failPaymentAndOrder(1L));
+        assertThatThrownBy(() -> paymentCommandService.failPaymentAndOrder(1L))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage(ErrorCode.INVALID_PAYMENT_STATUS.getMessage());
     }
 
     @Test
@@ -111,19 +115,19 @@ class PaymentCommandServiceTest {
     void approvePaymentAndOrder_success() {
         //given
         Order order = new Order(
-                new Customer(
+                new Customers(
                         "email",
                         "password",
-                        "name"
-                ),
-                OrderStatus.PENDING_PAYMENT,
-                10000L,
-                List.of()
+                        "name",
+                        "000-0000-0000"
+                ),"ord_num",
+                10000L
         );
         Payment payment = new Payment(
                 10000L,
                 PaymentStatus.IN_PROGRESS,
-                order
+                order,
+                0L
         );
 
         given(paymentService.findByOrderIdWithOrder(anyLong())).willReturn(payment);
@@ -132,7 +136,7 @@ class PaymentCommandServiceTest {
             return null;
         }).given(paymentService).confirmPayment(payment);
         willAnswer(invocation -> {
-            order.markAsConfirmed();
+            order.confirm();
             return null;
         }).given(orderService).confirmOrder(order);
 
@@ -149,19 +153,21 @@ class PaymentCommandServiceTest {
     void approvePaymentAndOrder_failure_invalid_status() {
         //given
         Order order = new Order(
-                new Customer(
+                new Customers(
                         "email",
                         "password",
-                        "name"
+                        "name",
+                        "000-0000-0000"
                 ),
-                OrderStatus.CANCELLED,
-                10000L,
-                List.of()
+                "ord_num",
+                10000L
         );
+        order.cancel();
         Payment payment = new Payment(
                 10000L,
                 PaymentStatus.IN_PROGRESS,
-                order
+                order,
+                0L
         );
 
         given(paymentService.findByOrderIdWithOrder(anyLong())).willReturn(payment);
@@ -170,11 +176,13 @@ class PaymentCommandServiceTest {
             return null;
         }).given(paymentService).confirmPayment(payment);
         willAnswer(invocation -> {
-            order.markAsConfirmed();
+            order.confirm();
             return null;
         }).given(orderService).confirmOrder(order);
 
         //when&then
-        assertThrows(RuntimeException.class, () -> paymentCommandService.approvePaymentAndOrder(1L));
+        assertThatThrownBy(() -> paymentCommandService.approvePaymentAndOrder(1L))
+                .isInstanceOf(BusinessException.class)
+                .hasMessage(ErrorCode.INVALID_ORDER_STATUS.getMessage());
     }
 }

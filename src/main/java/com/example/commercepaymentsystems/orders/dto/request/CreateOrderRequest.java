@@ -1,15 +1,19 @@
 package com.example.commercepaymentsystems.orders.dto.request;
+import jakarta.validation.constraints.PositiveOrZero;
 
 import java.util.List;
 
-// 주문 생성
-public record CreateOrderRequest(List<Long> cartItemIds) {
-
-    // null이 들어오면 빈 리스트로 변화
-    // 빈 리스트는 전체 장비구니 주문으로 처리
+public record CreateOrderRequest(
+        List<Long> cartItemIds,
+        @PositiveOrZero(message = "사용 포인트는 0 이상이어야 합니다.")
+        Long pointUsed
+) {
     public CreateOrderRequest {
         if (cartItemIds == null) {
             cartItemIds = List.of();
+        }
+        if (pointUsed == null) {
+            pointUsed = 0L;
         }
     }
 }
